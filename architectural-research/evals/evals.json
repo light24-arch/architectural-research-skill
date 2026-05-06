@@ -1,0 +1,46 @@
+{
+  "skill_name": "architectural-research",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "帮我做一下这个项目的前期调研，任务书在 test.docx 里，是一个二线城市的住宅项目，容积率2.5，用地大概3公顷。",
+      "expected_output": "一份结构化的 .docx 建筑前期调研报告，包含项目概况、场地区位分析、气候环境分析、法规体量推演、人文需求、案例对标及综合结论。",
+      "files": [],
+      "assertions": [
+        {"name": "report-has-all-6-sections", "description": "报告包含项目概况、场地区位、气候环境、法规体量、人文需求、案例对标、综合结论", "type": "structural"},
+        {"name": "far-calculation-correct", "description": "容积率计算：3ha × 2.5 = 75,000 m² GFA", "type": "quantitative"},
+        {"name": "output-is-docx", "description": "输出文件为 .docx 格式", "type": "structural"},
+        {"name": "case-studies-with-source-links", "description": "至少3个案例含来源链接URL", "type": "qualitative"},
+        {"name": "mermaid-circulation-diagram", "description": "包含 Mermaid 交通流线分析图", "type": "structural"},
+        {"name": "handles-missing-brief-gracefully", "description": "任务书文件不存在时优雅降级，用已有参数继续分析", "type": "robustness"}
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "我们在做一个社区图书馆的方案，基地位于杭州余杭区，周边有地铁站和湿地公园。帮我出一份建筑前期调研报告，重点关注气候应对和地域文脉。",
+      "expected_output": "一份聚焦气候应对和地域文脉的建筑前期调研报告，包含杭州余杭区区位分析、气候数据、地域建筑风貌研究及图书馆案例对标。",
+      "files": [],
+      "assertions": [
+        {"name": "climate-data-hangzhou-specific", "description": "气候分析包含杭州/余杭具体温湿度、降水、风向数据", "type": "quantitative"},
+        {"name": "vernacular-architecture-discussed", "description": "讨论了江南/水乡地域建筑类型学（院落、天井等空间图式）", "type": "qualitative"},
+        {"name": "library-precedents-3-plus", "description": "包含3个以上图书馆案例对标", "type": "quantitative"},
+        {"name": "site-advantages-analyzed", "description": "明确分析了地铁站和湿地公园作为场地优势", "type": "qualitative"},
+        {"name": "wind-rose-included", "description": "包含风玫瑰图或风向分析", "type": "structural"},
+        {"name": "report-focuses-on-climate-and-context", "description": "报告重点突出气候应对和地域文脉，而非平均用力", "type": "qualitative"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "对一下这个老厂房改造项目做前期分析，地块不大就5000平，不用搞太复杂，主要是看看周边交通和找几个类似改造案例。",
+      "expected_output": "一份精简的前期分析报告，重点放在周边交通流线分析和工业遗存改造案例对标，模块可裁剪。",
+      "files": [],
+      "assertions": [
+        {"name": "modular-lightweight-execution", "description": "模块选择合理：只重点展开交通分析和案例对标，其余模块保持轻量", "type": "structural"},
+        {"name": "traffic-circulation-analysis", "description": "包含交通流线分析（Mermaid图或文字描述）", "type": "structural"},
+        {"name": "industrial-renovation-precedents-3-plus", "description": "包含3个以上工业遗存改造案例（如798、PSA、红坊等）", "type": "quantitative"},
+        {"name": "report-concise-not-overblown", "description": "报告精简聚焦，未生成全套重型报告", "type": "qualitative"},
+        {"name": "site-size-acknowledged", "description": "正确理解5000m²小规模地块的调研需求深度", "type": "robustness"}
+      ]
+    }
+  ]
+}
