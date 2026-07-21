@@ -97,53 +97,33 @@ Bulleted items (- ) for non-ordered lists like features, observations, or compon
 Indent: 0.63 cm (Word default)
 ```
 
-## Data Flag Conventions
+## Data Reliability Conventions
 
-| Symbol | Meaning |
-|--------|---------|
-| `⚠` | Inferred/assumed data — not from original brief |
-| `待补充` | Missing data — requires user to provide |
-| `基于规范推断` | Value derived from general standards, not project-specific |
-| `基于通用设计知识推断` | Qualitative judgment, not hard data |
+Use **professional footnotes** at the bottom of each table or end of each section, rather than
+inline warning symbols. The reader should see the data first, reliability context second.
 
-Use these flags consistently so the user immediately knows the reliability of each data point.
+| Situation | Footnote Format |
+|-----------|-----------------|
+| Inferred/assumed data | `注：以上数据基于同类型项目经验推断，需结合项目实际情况确认。` |
+| Missing data | `注：[具体条目] 待任务书补充后更新。` |
+| Standards-derived values | `注：上表数值依据 [规范名称] 通用要求计算，实际以规划条件为准。` |
+| Qualitative judgment | `注：本段分析基于通用建筑设计知识，建议结合实地调研深化。` |
+| Climate from built-in DB (nearby city) | `注：气候数据基于 [参考城市] 多年平均值推演，需结合实测微调。` |
+| Climate from zone inference | `注：自然环境数据基于同气候区均值推演，需结合实测微调。` |
+| Traffic from city-type inference | `注：交通分析基于城市类型推断，建议结合实地调研核实。` |
+
+**Guidelines:**
+- Place footnotes in 8.5pt, #888888, at the end of the relevant section or directly below the table.
+- Use `注：` prefix consistently — it's professional and unambiguous in Chinese architectural documents.
+- Never interrupt the flow of the report with inline warning symbols.
+- If a section has multiple data reliability levels, use a single consolidated footnote covering all of them.
 
 ## Technical Notes for python-docx
 
-```python
-from docx import Document
-from docx.shared import Inches, Pt, Cm, RGBColor, Emu
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml.ns import qn
-
-# Set default font for the entire document
-style = doc.styles['Normal']
-style.font.name = '微软雅黑'
-style.font.size = Pt(10.5)
-style.paragraph_format.line_spacing = 1.5
-
-# For CJK font fallback
-rPr = style.element.get_or_add_rPr()
-rFonts = OxmlElement('w:rFonts')
-rFonts.set(qn('w:eastAsia'), '微软雅黑')
-rPr.append(rFonts)
-
-# Add a table with custom header formatting
-def add_styled_table(doc, headers, rows):
-    table = doc.add_table(rows=1+len(rows), cols=len(headers))
-    table.style = 'Light Grid Accent 1'
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    # Style header row
-    for i, h in enumerate(headers):
-        cell = table.rows[0].cells[i]
-        cell.text = h
-        for p in cell.paragraphs:
-            for run in p.runs:
-                run.bold = True
-    # Fill data
-    for r, row in enumerate(rows):
-        for c, val in enumerate(row):
-            table.rows[r+1].cells[c].text = str(val)
-    return table
-```
+When generating .docx via python-docx:
+- Set the default document font to 微软雅黑 (10.5pt, 1.5× line spacing) via the Normal style.
+- For CJK fallback, set the `w:eastAsia` font attribute on the Normal style's run properties.
+- Tables: use `Light Grid Accent 1` style; manually bold the header row text; fill data rows
+  with `cell.text = str(val)`. Dark blue header background (#1a478a) with white text.
+- Images: embed with `doc.add_picture(path, width=Cm(15))`. Always wrap in try/except.
+- Page breaks: insert before each Heading 1 (major section).

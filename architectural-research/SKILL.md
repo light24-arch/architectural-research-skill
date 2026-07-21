@@ -10,38 +10,74 @@ description: >-
   always use this skill.
 ---
 
-# Architectural Pre-Design Research
+# Architectural Research Agent
 
-Produce a structured _Architectural Pre-Design Research Report_ (.docx) from a design brief (.docx/.pdf).
-The core methodology is **macro → meso → micro**, layer by layer: understand the city-scale role first,
-then the neighborhood context, then the site's internal characteristics.
+面向建筑学生、建筑师及设计团队的**建筑前期研究助手**。
+
+从项目任务书中辅助完成"信息理解 → 问题发现 → 设计机会 → 空间策略"的建筑设计推导过程。
+不是整理资料，而是推导设计方向。
+
+The core methodology is a **design derivation chain**, not a data dump:
+
+```
+项目理解 → 场地研究 → 人群与文化 → 体量与功能推演 → 问题提炼 → 设计机会 → 策略探索 → 空间概念
+```
+
+Every section answers a question that pushes the design forward. The final output is a structured
+research book (.docx or .html) that traces this logic, culminating in 5–8 actionable design strategies
+for the designer to evaluate.
 
 ## Quick Reference
 
 | Task | Approach |
 |------|----------|
 | Extract brief data | `.docx` via python-docx; `.pdf` via `markitdown` (fallback: `pypdf`) |
+| Project understanding check | Before research: list identified / inferred / missing info from brief |
 | Infer project location | Derive approximate address (city/district/area) directly from the brief |
 | Surrounding POIs & roads | Overpass API → web search → city-type inference (3-tier fallback) |
 | Climate data | Open-Meteo API → built-in city DB (`references/climate_data.md`) → zone inference |
 | Wind rose | Generate SVG via bundled `scripts/wind_rose.py`; draw manually if only text data |
 | Case studies | Web search bilingual; cite only verified URLs; never fabricate links |
-| Image collection | Search and download relevant photos, maps, diagrams for modules 1/2/4/5 per image strategy |
-| Final report | python-docx with embedded images, following `references/report_template.md` |
+| Design strategy generation | Cross problem sources × spatial strategy types → 5–8 actionable strategies |
+| Image collection | Search and download relevant photos, maps, diagrams per image strategy |
+| Final report | python-docx (.docx) or HTML (.html), following report structure below |
 
 ---
 
 ## Information Search Strategy
 
+**Priority order:** User-provided local files → Built-in reference DB → Web search → API data.
+
 Architectural research spans both Chinese and English sources. Always use bilingual search,
-especially in these modules:
+especially in these modules. If the user provided local reference files in the Before You Begin
+step, load and search those first — they may eliminate the need for web search in some modules.
 
 | Module | Chinese Sources | English Sources |
 |--------|----------------|-----------------|
-| 1.1 Location & Policy | 当地自然资源和规划局网站、百度百科城市条目 | Wikipedia city/country pages, UN-Habitat reports |
-| 1.2 Cultural Context | 知网/百度学术地域建筑论文、地方志、建筑遗产名录 | Google Scholar, JSTOR vernacular architecture |
-| 4.1 History & Culture | 地方文史资料、非物质文化遗产名录、民俗志 | UNESCO intangible heritage, academic ethnography |
-| 5. Precedent Studies | 谷德设计网(gooood.cn)、ArchDaily CN、建筑学院(archcollege.com)、搜建筑(soujianzhu.cn) | ArchDaily, Dezeen, Architizer, Divisare, World-Architects |
+| 02.1 Location & Context | 当地自然资源和规划局网站、百度百科城市条目 | Wikipedia city/country pages, UN-Habitat reports |
+| 02.2 Cultural Context | 知网/百度学术地域建筑论文、地方志、建筑遗产名录 | Google Scholar, JSTOR vernacular architecture |
+| 03. Culture & History | 地方文史资料、非物质文化遗产名录、民俗志 | UNESCO intangible heritage, academic ethnography |
+| 07. Precedent Studies | 谷德设计网(gooood.cn)、 ArchiPosition(archiposition.com) | ArchDaily(archdaily.com), Dezeen(dezeen.com), Architizer(architizer.com) |
+
+### Case Search Priority (CRITICAL)
+
+When searching for architectural precedent cases, **always search these five sites first**, in order of priority:
+
+| Priority | Site | URL | Strengths |
+|----------|------|-----|-----------|
+| 1 | **ArchDaily** | archdaily.com | Largest global architecture database; project facts, drawings, photos |
+| 2 | **Dezeen** | dezeen.com | High-quality curated projects; design strategy interviews |
+| 3 | **Architizer** | architizer.com | Award-winning projects; strong filtering by typology/climate |
+| 4 | **谷德设计网** | gooood.cn | Best Chinese-language source; Asian projects in depth |
+| 5 | **ArchiPosition** | archiposition.com | Young Chinese architects; emerging practice strategies |
+
+Use site-specific search queries:
+- English: `site:archdaily.com [building type] [location]`
+- English: `site:dezeen.com [architect name] [project type]`
+- Chinese: `site:gooood.cn [建筑类型] [关键词]`
+
+**Fallback**: If none of the five sites return relevant results, expand to general web search with bilingual queries.
+**Rule**: URLs in the final report MUST come from one of these five sites or a verified official firm page. Never cite aggregator/listicle sites (e.g., Pinterest, Reddit, Wikipedia).
 
 **Search technique:** For each topic, run at least one Chinese query and one English query.
 Chinese queries should use specific project/location names and architectural terminology.
@@ -97,13 +133,15 @@ site conditions, architectural strategies, climate data, and design intent faste
 
 | Module | Images to Collect | Typical Count |
 |--------|------------------|---------------|
-| 0. Project Overview | — (text + tables only) | 0 |
-| 1. Site & Context | City/district location map, aerial/satellite view of site area, surrounding landmark photos, street view captures, regional architectural examples | 4–8 |
-| 2. Climate & Environment | Wind rose SVG (generated), climate charts if available, site terrain/topography if relevant | 2–4 |
-| 3. Zoning & Massing | — (tables + diagrams only) | 0 |
-| 4. Culture & Users | Local cultural heritage photos, historical images, vernacular architecture details, user scenario illustrations | 2–5 |
-| 5. Precedent Studies | **Most image-rich section:** exterior photo, interior photo, and key diagram/plan/section per case study (2–3 images per project, 6–15 total) | 6–15 |
-| 6. Conclusions | Conceptual site strategy diagram (optional) | 0–1 |
+| 01. Project Understanding | — (text + tables only) | 0 |
+| 02. Site & Context | City/district location map, aerial/satellite view of site area, surrounding landmark photos, street view captures, regional architectural examples | 4–8 |
+| 02.2 Climate & Environment | Wind rose SVG (generated), climate charts if available, site terrain/topography if relevant | 2–4 |
+| 03. Culture & Users | Local cultural heritage photos, historical images, vernacular architecture details, user scenario illustrations | 2–5 |
+| 04. Program & Massing | — (tables + diagrams only) | 0 |
+| 05. Design Challenges | — (text only) | 0 |
+| 06. Precedent Studies | **Most image-rich section:** exterior photo, interior photo, and key diagram/plan/section per case study (2–3 images per project, 6–15 total) | 6–15 |
+| 07. Strategy Exploration | Strategy concept diagrams (optional) | 0–5 |
+| 08. Next Steps | — (text only) | 0 |
 
 ### Image Search Technique
 
@@ -128,18 +166,22 @@ def safe_download(url, path, timeout=15):
     try:
         urllib.request.urlretrieve(url, path)
         return True
-    except Exception as e:
-        print(f"Image download failed: {url} — {e}")
+    except Exception:
         return False
 
 if safe_download(image_url, 'temp_image.jpg'):
     doc.add_picture('temp_image.jpg', width=Cm(15))
+else:
+    # Generate placeholder — never stall the report
+    doc.add_paragraph(f'[占位：此处应补充图片 — {caption}]')
 ```
 - Always wrap image downloads in try/except; skip failed images rather than stalling
+- **If download fails:** generate a text placeholder `[占位：此处应补充 XX 图片]` at the
+  image location. The report MUST continue. Do not retry the same URL more than once.
 - Maximum image width: 15 cm (fits within A4 margins)
 - Supported formats: JPG, PNG; SVG must be converted to PNG before embedding
 - Resize to reasonable dimensions; avoid embedding multi-megabyte originals
-- Every image must have a caption immediately below
+- Every image must have a caption immediately below (or the placeholder text)
 
 ### Copyright Note
 
@@ -149,81 +191,69 @@ appropriate use. Do not embed images from paywalled or clearly restricted source
 
 ---
 
-## Before You Begin
+## Workflow — One-Time Initialization
 
-Before starting any research, ask the user two questions in one short message:
+When the skill is triggered and a task brief is provided, do NOT ask multiple questions
+or run Step 0 separately. Instead, **read the brief, think silently, and output a single
+initialization summary**. The user confirms once, then all research proceeds uninterrupted.
 
-1. **Module scope:** "Before I start, do you want all 6 modules at standard depth, or should I
-   focus on specific ones? (e.g., skip policy if it's a small project, or go deep on culture.)"
-2. **Policy research:** For projects with regulatory complexity, ask whether to include
-   planning policy research.
+### Output format (single message, no follow-up questions):
 
-If the user doesn't specify, default to the concept-stage profile (Modules 0/1/2/5 at standard;
-3/4 at light). Then proceed to Step 0.
+```
+## 项目理解初始化
+
+### 项目概况
+- 项目类型：[从任务书提取]
+- 建设规模：[用地面积 / GFA / FAR 等指标]
+- 核心功能：[主要功能组成]
+- 特殊约束：[保护要素 / 限高 / 退线等]
+
+### AI 推断（需用户确认）
+- [推断 1：基于建筑类型推断的 XXX]
+- [推断 2：基于项目位置推断的 XXX]
+
+### 待补充信息
+- [缺失项 1] — 影响 [哪个模块] 的分析深度
+- [缺失项 2] — 影响 [哪个模块] 的分析深度
+
+### 推荐研究深度
+- 深度模块：01 / 02 / 06 / 07（标准）
+- 轻量模块：04 / 05（精简）
+- 策略数量：建议 5–8 个
+
+### 输出格式
+默认 HTML（浏览器查看）/ 可选 .docx（Word 文档）
 
 ---
 
-## Step 0 — Parse the Brief
+📎 如有本地参考文件（案例 / 笔记 / 规范 / 照片），请将路径发给我——我会优先引用。
 
-Before any research, extract every quantitative and qualitative requirement from the brief:
+回复 1 → 按上述默认配置执行
+回复 2 → 我需要补充/调整（请注明调整内容）
+```
 
-- Project name, location (full address), building type
-- Site area, floor area ratio (FAR), building density, height limit, green space ratio
-- Functional program (room types, areas, adjacency requirements)
-- Parking requirements, setback distances
-- Any special constraints (protected trees, heritage buildings, noise zones)
+### After user confirms:
 
-Infer the project's approximate location directly from the brief — the goal is to identify the
-general project address (city, district, area), not precise coordinates. If the brief's address
-is vague, derive a reasonable location from project name, mentioned landmarks, or administrative
-region; ask the user for clarification only if the location is genuinely ambiguous.
+- If user replies **1**: Proceed immediately to research (Step 1–5). Do not ask any more
+  questions.
+- If user replies **2** with supplements: Update the initialization summary, then proceed.
+- If user provides **local files**: Read them and adjust module depth accordingly
+  (e.g., if user provides a full case study document → Module 06 becomes lighter,
+  since user already has curated precedent material).
 
-If any critical metric is missing from the brief (FAR, site area, height limit), flag it in the report
-as "待补充" (to be supplemented) and state why the analysis for that dimension is limited.
+### User Knowledge Base (RAG Layer)
 
-### Adaptive Research Focus
+When the user provides local reference files in response to the initialization prompt,
+they serve as a **pre-loaded knowledge base** with highest retrieval priority.
 
-After extracting the basic metrics, determine what makes this specific project unique
-by extracting terms directly from the brief and searching for related knowledge online.
-Do NOT rely on a fixed keyword list — every project has its own vocabulary.
+**Rules for user-provided files:**
+1. **Always load first.** Before any web search, read the user's local files.
+2. **Cite with priority.** Format: `来源：用户提供 — [文件名]`.
+3. **Supplement, don't replace.** User files fill gaps; web search covers the rest.
+4. **Flag coverage.** In the report introduction, note which sections were primarily sourced
+   from user-provided materials.
 
-#### Step A: Extract Distinctive Terms
-
-Read the brief and pull out **5–10 terms, phrases, or requirements** that distinguish
-this project from a generic one. Focus on:
-
-- Repeated technical terms (e.g., a brief about Semporna repeatedly mentions "巴瑶族")
-- Unique site conditions (e.g., "潟湖", "历史街区核心保护区", "山坡台地")
-- Explicit design mandates (e.g., "产展销一体", "近零能耗", "BIM协同设计")
-- Named cultural/geographic references (e.g., "苏州园林", "良渚文化")
-- Unusual functional requirements (e.g., "生产与博物馆功能区分割", "漂浮模块")
-
-These are the project's own words — not category labels.
-
-#### Step B: Search with Those Terms
-
-For each distinctive term, run targeted bilingual web searches that combine the term
-with the project's building type and location. The goal is to find: relevant precedents,
-applicable design strategies, regulatory frameworks, and scholarly references.
-
-Example: If the brief says "巴瑶族高脚屋", search "Bajau stilt house construction
-technique" and "巴瑶族 水上村落 建筑". If it says "近零能耗", search "near-zero
-energy resort tropical climate precedent". If it says "城中村有机更新", search
-"urban village organic renewal hillside adaptive reuse".
-
-**The search findings drive the emphasis.** If searches for a term yield rich
-architectural material, that area gets deep treatment. If searches return sparse
-results, scale back and note the limitation in the report.
-
-#### Step C: Present the Adjusted Plan
-
-After searching, tell the user concisely what emerged and how it reshapes the plan:
-> "从任务书提取到核心方向：巴瑶族文化转译、近零能耗海上建筑、模块化体系。
-> 搜索后：巴瑶族建筑有详实民族志文献和影像（Module 4→深度），
-> 近零能耗海上度假村有成熟先例（Module 3→标准），
-> 模块化海上酒店案例偏少（Module 5→以全球海上度假村案例替代）。是否调整？"
-
-The user then confirms or overrides before full research begins.
+**Supported file types:** `.pdf` / `.docx` / `.pptx` / `.jpg/.png` / `.txt/.md`
 
 ---
 
@@ -246,11 +276,9 @@ The user then confirms or overrides before full research begins.
 **Tooling — OSM/Overpass (tiered fallback):**
 - **Tier 1:** Query Overpass API for `highway=primary`, `highway=secondary`, `railway=subway`,
   `amenity=bus_station` within 1–2 km radius. Run `python scripts/osm_query.py --lat <lat> --lon <lon>`.
-- **Tier 2 (API fails):** Use web search for "[city name] [district] 交通 地铁 公交 道路"
-  and "[city name] [district] transportation metro road network" to gather accessibility info.
-- **Tier 3 (no structured data):** Describe based on city type: CBD (dense transit, walkable),
-  new district (metro-oriented, wide roads), suburb (car-dependent), rural (limited transit).
-  Always mark Tier 3 data as: "基于城市类型推断，建议人工核实".
+- **Tier 2 (API fails):** Describe based on city type — no web search for roads (unreliable).
+  CBD (dense transit, walkable), new district (metro-oriented, wide roads), suburb (car-dependent),
+  rural (limited transit). Always mark as: "注：交通分析基于城市类型推断，建议结合实地调研核实。"
 
 ### 1.2 Cultural Context & Architectural Typology (Meso)
 
@@ -289,11 +317,26 @@ To embed in the .docx, render the Mermaid diagram to PNG/SVG via an online servi
 
 ## Step 2 — Climate & Environment (Hard Constraints)
 
-Climate data has a three-tier degradation path. Always try Tier 1 first.
+Climate data has a three-tier path.
 
-### Tier 1: Open-Meteo API (preferred)
+### Tier 1: Built-in City Database (preferred — read first)
 
-Call the Open-Meteo Archive API for the project coordinates (replace lat/lon/dates):
+**Always check `references/climate_data.md` first.** Read that file and look up the
+project city by name. If the exact city is present, use its row directly. If a nearby
+city with similar latitude and climate zone is present, use it and note:
+"注：气候数据基于[参考城市]多年平均值推演，需结合实测微调。"
+
+The reference covers: all Chinese provincial capitals and major cities, plus key
+international destinations (Semporna, Kuala Lumpur, Bangkok, Singapore, Malé, Tokyo, Dubai, Sydney).
+
+**For most routine projects, stop here.** The built-in DB is fast, reliable, and avoids
+network dependencies. Only proceed to Tier 2 if:
+- The city is NOT in the database, OR
+- The project has strong passive-design or zero-carbon requirements that need granular data
+
+### Tier 2: Open-Meteo API (on-demand, for missing cities or deep climate analysis)
+
+Call the Open-Meteo Archive API for the project coordinates:
 ```
 https://archive-api.open-meteo.com/v1/archive?latitude=X&longitude=Y
 &start_date=2014-01-01&end_date=2023-12-31
@@ -303,26 +346,16 @@ wind_speed_10m_mean,wind_direction_10m_dominant,
 sunshine_duration,shortwave_radiation_sum
 ```
 Fetch 10 years of data, aggregate to monthly averages. Include `sunshine_duration` (hours)
-and `shortwave_radiation_sum` (MJ/m²) for solar analysis. This is the most accurate source.
-
-### Tier 2: Built-in City Database (fallback)
-
-If the API is unreachable (network error, timeout after 15s, SSL failure), immediately
-switch to the built-in climate reference at `references/climate_data.md`. Read that file
-and look up the project city by name. If the exact city is present, use its row directly.
-If a nearby city with similar latitude and climate zone is present, use it and note:
-"气候数据基于[参考城市]多年平均值推断".
-
-The reference covers: all Chinese provincial capitals and major cities, plus key
-international destinations (Semporna, Kuala Lumpur, Bangkok, Singapore, Malé, Tokyo, Dubai, Sydney).
+and `shortwave_radiation_sum` (MJ/m²) for solar analysis. If the API is unreachable
+(timeout after 15s, network error), fall back to Tier 3 without retrying.
 
 ### Tier 3: Climate Zone Inference (last resort)
 
-If the city is not in the database, infer from the building climate zone:
+If both the built-in DB and API fail, infer from the building climate zone:
 - Determine zone from latitude + Köppen classification
 - Use the zone-level design strategy summary at the bottom of `references/climate_data.md`
 - Describe qualitative climate characteristics (e.g., "热带雨林气候，全年高温高湿")
-- Mark all data as: "基于气候分区推断，建议人工核实具体气象数据"
+- Mark as: "注：自然环境数据基于同气候区均值推演，需结合实测微调。"
 
 ### Wind Rose
 
@@ -342,9 +375,11 @@ Always cite the data source tier in the report so the user knows the reliability
 
 ---
 
-## Step 3 — Zoning & Massing (Volume Control)
+## Step 3 — Program & Massing Analysis (→ Module 04)
 
-This is a deterministic calculation. From the brief's metrics, compute:
+From the brief's metrics, compute the buildable envelope, then layer in the functional program.
+This is the quantitative backbone of the report — it locks down the numbers before any strategy
+or concept work begins.
 
 1. **Maximum buildable volume:** site_area × FAR
 2. **Maximum building footprint:** site_area × building_density
@@ -384,7 +419,7 @@ user groups. Output it as a table in the report appendix.
 
 **Data limitation:** If census or demographic data is not available for the specific area,
 base user profiles on the building type's established design knowledge, and clearly label
-this as "基于通用设计知识推断" (inferred from general design knowledge).
+this as: "注：本段用户画像基于通用建筑设计知识推断，建议结合实地调研深化。"
 
 ---
 
@@ -434,97 +469,340 @@ returned by actual web searches. If a URL is unclear, write "搜索 '[project na
 
 ---
 
-## Output: The Report
+## Output: The Research Book
 
-Write the final report as a `.docx` file named `<Project-Name>_前期调研报告.docx`.
+Write the final report as `<Project-Name>_前期研究报告.html` (default) or `.docx` (on request).
+The report is not a data dump — it is a **design derivation book** that traces
+the logic from understanding to strategy.
 
-### Report Structure (Required Sections)
+### Report Structure (9-Module Design Derivation Chain)
 
 ```
-# [项目名称] 建筑前期调研报告
-## 0. 项目概况 (Project Overview)
-   - 提取自任务书的核心指标表
-## 1. 场地区位与周边分析 (Site & Context)
-   - 1.1 区位与交通可达性
-   - 1.2 地域文脉与建筑风貌
-   - 1.3 场地现状与周边建筑
-   - 1.4 交通流线分析
-## 2. 气候与环境分析 (Climate & Environment)
-   - 2.1 温湿度与降水
-   - 2.2 日照与风向 (含风玫瑰图)
-   - 2.3 噪音分析与设计策略
-## 3. 法规与体量推演 (Zoning & Massing)
-   - 3.1 规划指标解读
-   - 3.2 最大可建体量计算
-   - 3.3 面积平衡表
-## 4. 人文与人群需求 (Culture & Users)
-   - 4.1 历史文脉叙事
-   - 4.2 使用者画像与行为模式
-   - 4.3 调研问卷 (附录)
-## 5. 案例对标研究 (Precedent Studies)
-   - 5.1 国内外典型案例
-   - 5.2 周边同类项目
-   - 5.3 案例对比评估矩阵
-## 6. 综合结论与设计建议 (Conclusions & Recommendations)
+# [项目名称] — 建筑前期研究报告
+
+## 01 项目概况 Project Overview
+   任务书核心指标提取 / 硬性约束清单（表格：维度+内容）/ 信息状态声明
+   （已识别 / AI推断需确认 / 待补充，用3张卡片并列）
+   重点：一页之内建立项目认知基线，读者不需要翻任务书。
+
+## 02 背景分析 Context Analysis
+   区域语境（城市定位 / 产业特点 / 相关发展规划）/ 建筑类型背景
+   （如任务书要求的模块化建筑缘起与发展）/ 为什么这个项目在此地有价值
+   重点：从宏观视野解释项目定位，不孤立地看建筑。
+
+## 03 场地与环境 Site & Environment
+   3.1 气候数据大字报（KPI Row：年均温 / 湿度 / 日照 / 降雨，4列）
+   3.2 气候 → 设计策略推导（3张卡片：高温→通风 / 强日照→遮阳+产能 / 强风盐雾→耐候）
+   3.3 自然灾害风险评估（5列表格：灾害类型 / 风险等级 / 影响 / 设计应对）
+   重点：每项环境数据必须转译为设计动作。表格、卡片、KPI 都是"论据"。
+
+## 04 人群与文化 User & Culture
+   4.1 人群画像（4列卡片：人群名 → 核心行为 → 空间需求 → 设计回应）
+   4.2 地域文化 → 空间转译链（文化原型 → 空间特征 → 现代转译，3列Chain组件）
+   4.3 生活方式 → 空间需求映射表
+   重点：文化用"聚落+架空+连桥"等空间组织表达，不用符号化装饰。
+
+## 05 设计挑战 Design Challenges
+   5个核心矛盾，每个一张Challenge Card（左边框线+问题描述+问题标签）。
+   标签分类：场地问题 / 气候问题 / 文化问题 / 能源问题 / 技术问题 / 空间问题。
+   每张卡片底部附"→ 查看对应的设计机会"链接（跳转到Module 06对应锚点）。
+   重点：此时只定义问题，不给出答案。每个挑战以"核心问题：xxx？"收尾。
+
+## 06 设计机会 Design Opportunities
+   5个机会，对应Module 05的5个挑战。每个机会用Chain组件（← → 连接）：
+   从Challenge 0X → 机会简述 → 机会展开说明。
+   每个机会链有独立锚点ID（#opp-01 ~ #opp-05），供Module 05跳转。
+   重点：问题是给定的，机会是主动发现的。每个机会可指向一条或多条后续策略。
+
+## 07 策略探索 Strategy Exploration
+   6条设计策略，每条一个Strategy Card（8要素完整结构）：
+   Strategy Name → Design Question → Evidence(Site/Culture/User) →
+   Opportunity → Concept → Spatial Operation（必须转译为具体空间动作）→
+   Reference Cases（说明学什么）→ Applicability。
+   末尾附策略生成矩阵（5×5覆盖关系表：问题来源 × 空间策略类型）。
+   重点：每条策略的空间动作必须具体（如"架空底层""连桥街道系统"），
+   禁止只有抽象概念没有空间回应。
+
+## 08 案例对标 Reference Cases
+   6个案例，包含：图片网格（3列，可替换img标签）+ 对比表
+   （案例名/年份地点/建筑师/关键策略/本项目启示/已验证URL）。
+   末尾附4条关键启示（2×2卡片网格）。
+   重点：URL必须通过web search验证后填入，未验证的不填。
+   每个案例说明"学习什么"和"对本策略的启发"。
+
+## 09 结论与建议 Conclusion
+   5条核心发现（编号列表）/ 硬性vs弹性约束表 / 风险评估表（5行）/
+   3步行动建议（3列卡片：01策略筛选 → 02场地深化 → 03概念方案）。
+   重点：不是重复前文，是提炼可操作的下一步。
 ```
 
-### Formatting Rules
+### Output Format
 
-Read `references/report_template.md` for the complete formatting specification before
-generating the report. That file defines precise font sizes, colors, heading hierarchy,
-table styling, image handling, page setup, and data flag conventions. Follow it exactly.
+Default output is **.html**. User can request .docx if needed.
 
-Key principles (detailed spec in the reference file):
-- Use python-docx for all document creation.
-- Title page with project name (22pt bold dark blue) + subtitle (16pt).
-- Heading 1 (16pt bold), Heading 2 (13pt bold), Heading 3 (11pt bold).
-- Body text 10.5pt, 1.5× line spacing, justified alignment.
-- Tables: dark blue header row with white text, alternating row shading.
-- Images: embed inline with numbered captions; max 15cm width.
-- Data flags: ⚠ (inferred), 待补充 (missing), 基于规范推断 (standards-based).
-- Page size: A4, margins 2.54cm all sides.
+- **.html (default, recommended)**: Single-file interactive research book — black & white
+  editorial design, fixed left sidebar TOC (180px), rounded corners, smooth scroll,
+  Challenge→Opportunity jump links, printed to A4 PDF via Ctrl+P.
+  Opens in any browser, no server needed. Best for presentation, sharing, and team review.
+  (Full HTML generating rules: see "HTML Rendering Specification" below.)
+- **.docx (on request)**: Traditional Word document — python-docx with embedded images,
+  following `references/report_template.md` formatting spec. Best for academic submission
+  where .docx is required.
 
----
+### HTML Rendering Specification
 
-## Section 6 Requirements — Design Recommendations
+This section is the **complete rendering rulebook** for generating the HTML research book.
+Read it before writing any HTML output. The canonical reference implementation is at
+`assets/research-book-template.html` (to be sync'd with the v2 design system).
 
-Section 6 (综合结论与设计建议) is the most actionable part of the report. Do NOT treat it
-as a lightweight summary. It must be as detailed as the research sections and directly
-grounded in the findings from Modules 1–5.
+#### 1. Design System (Black & White Editorial)
 
-### 6.1 Core Conclusions (5–8 items)
-
-Each conclusion must:
-- State a finding from the research, not a generic platitude
-- Reference specific data or precedents from earlier sections
-- Be 2–4 sentences long, explaining WHY this matters for design
-
-Bad: "注重可持续发展"
-Good: "基于仙本那年均日照7.5h/天的数据（Section 2.2），光伏系统可满足80%以上能耗需求。参考Soneva Secret的90%清洁能源先例（Section 5.1），建议将浮式光伏阵列与储能系统作为酒店能源策略的核心，而非仅作为补充。"
-
-### 6.2 Design Strategies (10–15 items)
-
-This is the core deliverable. Each strategy must:
-- Be numbered and have a clear title
-- Include 2–4 sentences explaining the rationale (WHY) and implementation approach (HOW)
-- Reference specific precedents, climate data, or site conditions from earlier sections
-- Be actionable — a designer reading this should know what to do next
-- Prioritize strategies that respond to the project's unique constraints (keywords from Step 0)
-
-Format each strategy as:
-```
-N. 【策略标题】
-为什么要这样做（1-2句基于调研数据的理由）。
-具体怎么做（1-2句实施建议）。参考：[案例/数据来源]。
+```css
+:root{
+  --color-text: #111;
+  --color-bg: #fff;
+  --color-border: #e5e5e5;
+  --color-card: #f9f9f9;
+  --color-text-secondary: #555;
+  --color-text-helper: #888;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
 ```
 
-### 6.3 Risk Assessment
+Principles:
+- **No accent color blocks, no gradients, no decorative graphics.** Pure black-on-white.
+- **No `margin-left: -xxx` or `position: absolute` as primary layout.** Use Flexbox / CSS Grid.
+- Table header row: black background (#111) + white text (NOT blue).
+- Cards: light grey `#f9f9f9` background, `border-radius: var(--radius-md)`, no colored borders.
+- Strategy Cards: left border `2px solid var(--color-text)` (black, not colored).
+- Dashed dividers (`border-top: 1px dashed var(--color-border)`) for visual lightness.
 
-Table format, but each risk entry should include specific mitigation steps, not generic advice.
+#### 2. Typography
 
-### 6.4 Next Steps
+- Body: `font-size: 15px; line-height: 1.8;` (relaxed reading rhythm)
+- **No `letter-spacing` on Chinese text.** CJK characters have built-in spacing.
+- **No `ch` units.** Use fixed max-width (e.g., `max-width: 700px`) for content columns.
+- H1: `font-weight: 300; font-size: clamp(24px, 3.5vw, 40px);`
+- H2: `font-weight: 400; font-size: clamp(18px, 2vw, 24px);`
+- KPI number: `font-weight: 300; font-size: clamp(36px, 5vw, 64px);`
+- Meta labels: `font-family: JetBrains Mono; font-size: 11px; color: var(--color-text-helper);`
+- Font stack: `"Inter", "Noto Sans SC", system-ui, sans-serif`
+- **Overflow defense** on body: `overflow-x: hidden` + all titles get `overflow-wrap: break-word; max-width: 100%;`
 
-Actionable, sequenced, with clear ownership (what the designer does vs. what requires consultants).
+#### 3. Layout & Sidebar
+
+- Body: `max-width: 1000px; margin: 0 auto; padding: 0;`
+- **Fixed left sidebar TOC**: `<nav id="toc-sidebar">` with `position: fixed; width: 180px;` positioned at `left: max(0px, calc((100vw - 1000px) / 2))` to align with body edge. Contains cover + 01–09 module links.
+- **Content area**: `<main id="content">` with `margin-left: 180px; max-width: 700px; padding: var(--sp-8) var(--sp-7);`
+- TOC active state tracked via `IntersectionObserver` (rootMargin: `-15% 0px -75% 0px`).
+- Responsive (≤860px): sidebar collapses to hamburger toggle (`#btn-toc-toggle`), content margin-left → 0.
+- Print: sidebar hidden (`display: none`), content margin-left → 0, page breaks before each module.
+
+#### 4. Cover
+
+- White background, black text, centered layout.
+- Min-height: 70vh, flexbox vertical centering.
+- Structure: Meta label (mono font, 11px, "ARCHITECTURAL RESEARCH BOOK") → Project title (H1, weight 300) → Subtitle (lead, max-width ~440px) → Date line (mono, 11px, "YYYY.MM.DD · Author · HTML Research Book").
+- Bottom border: `1px solid var(--color-border)` separating cover from content.
+- **No colored background. No decorative elements.**
+
+#### 5. Component Library & Module Mapping
+
+**CRITICAL: Do NOT display AI reasoning chains, Mermaid diagrams, or internal analysis flow in the HTML.**
+The research book shows architectural results, not AI thinking process.
+
+| Component | CSS Class | Use When | Example Module |
+|-----------|-----------|----------|----------------|
+| KPI Row | `.rb-kpi-row` (flex, gap, card bg) | 3–4 key metrics in a horizontal row | M01 (rooms/FAR/module size), M03 (temp/humidity/sunlight/rain) |
+| Card Grid | `.rb-card-grid` (3-col grid) | Comparing equal-weight items side by side | M01 (info status ×3), M03 (climate→strategy ×3), M04 (persona ×4), M09 (next steps ×3) |
+| Card (accent top) | `.rb-card-accent` (card + border-top) | Cards with a black top-border accent | M03 (climate design strategies) |
+| Table | `.rb-table` | Structured comparison data, >3 rows | M01 (constraints), M03 (disaster risks), M04 (lifestyle→space), M08 (case matrix), M09 (risks) |
+| Chain | `.rb-chain` (flex row + `.rb-chain-arrow`) | Sequential "A → B → C" reasoning | M04 (culture→space translation), M06 (challenge→opportunity chains) |
+| Strategy Card | `.rb-strategy-card` (left border + card bg) | Each design strategy | M07 (6 strategies × 8 elements each) |
+| Challenge Card | `.rb-strategy-card` with `background: var(--color-bg); border-left-width: 1px` | Each design challenge | M05 (5 challenges with problem tags) |
+| Image Grid | `.rb-img-grid` (3-col grid) | Case photos, site photos | M08 (3 case images) |
+| Divider | `.rb-divider` (dashed border-top) | Visual separation without new heading | Between M06 opportunity chains |
+
+**Images**: Use `<img class="rb-img" src="...">` with inline SVG data URI placeholders (grey rect + label text).
+Users replace by editing the `src` attribute. Do NOT use `<div>` as image placeholder.
+
+**Problem Tags**: In M05, each challenge card has pill-shaped `<span>` tags (`border-radius: 99px; border: 1px solid var(--color-border); font-size: 11px`) for visual categorization: 场地问题 / 气候问题 / 文化问题 / 能源问题 / 技术问题 / 空间问题.
+
+#### 6. Case Links & URLs
+
+**CRITICAL**: URLs must be verified via web search before inclusion.
+- Stage 1: AI identifies case name + architect + year + strategic value (no URL).
+- Stage 2: Web search for official/authoritative pages (ArchDaily, Dezeen, firm website, UN-Habitat, etc.).
+- Stage 3: Only `verified=true` URLs are rendered as clickable `<a href="..." target="_blank" rel="noopener">` links in the HTML.
+- Each case link cell in the table shows: `[官网 →]` or `[ArchDaily →]` or `[UN-Habitat →]` etc.
+- If no verified URL found: leave link cell blank or mark as `[待验证]`.
+
+#### 7. Challenge → Opportunity Jump Links
+
+- Each challenge card in M05 ends with: `<a href="#opp-NN" class="rb-challenge-link">→ 查看对应的设计机会</a>`
+- Each opportunity chain in M06 has a unique ID: `id="opp-01"` through `id="opp-05"`
+- CSS for `.rb-challenge-link`: `font-size: 12px; color: var(--color-text-helper); text-decoration: none; border-bottom: 1px dashed var(--color-border);`
+- Hover state: `color: var(--color-text); border-bottom-color: var(--color-text);`
+
+#### 8. Print Stylesheet
+
+```css
+@media print{
+  @page{ size: A4; margin: 2cm; }
+  body{ max-width: none; }
+  #toc-sidebar{ display: none; }
+  #content{ margin-left: 0; max-width: none; padding: 0; }
+  .module{ break-before: page; border-bottom: none; }
+  .rb-cover{ break-after: page; min-height: 80vh; }
+  .rb-img-grid, .rb-table-wrap, .rb-strategy-card, .rb-chain{ break-inside: avoid; }
+  #btn-top, #btn-toc-toggle{ display: none; }
+}
+```
+
+#### 9. JavaScript Interactions
+
+- `IntersectionObserver` for sidebar TOC active state tracking (rootMargin: `-15% 0px -75% 0px`).
+- Keyboard navigation: ↑/↓ (previous/next module), Home (cover), End (last module).
+- Back-to-top floating button (`#btn-top`, appears after 600px scroll, bottom-right fixed).
+- Sidebar link smooth scroll (prevent default, `scrollIntoView({behavior:'smooth', block:'start'})`).
+- Mobile hamburger toggle for sidebar (≤860px breakpoint, `#btn-toc-toggle`).
+
+#### 10. File Naming & Delivery
+
+Save as `<Project-Name>_前期研究报告.html`. Inform the user the file is ready and can be opened in any browser.
+Mention that:
+- Images are SVG placeholders and can be replaced by editing the `src` attribute of `<img>` tags.
+- Case URLs have been web-search verified (note verification date).
+- The report can be printed to A4 PDF via Ctrl+P (browser print).
+
+#### 11. Strategy Card Internal Structure (M07)
+
+Each strategy card MUST contain these 8 sections, in this order, using `.rb-h3` for sub-headings and `.rb-body-sm` for content:
+
+1. **Design Question** — Why this strategy is needed. The specific problem it addresses.
+2. **Evidence** — Design basis, citing Site / Culture / User evidence from earlier modules.
+3. **Opportunity** — What new possibility architecture can create.
+4. **Concept** — The design concept in 1–2 sentences.
+5. **Spatial Operation** — MUST be translated into concrete spatial actions (e.g., "架空底层" "连桥街道系统" "半室外冷巷" "BIPV屋面一体化"). This is the most important section — no abstract concepts without spatial response.
+6. **Reference Cases** — Name specific projects and explain what to learn from each. Never just list names.
+7. **Applicability** — What project types this strategy suits.
+8. **Strategy number** — Labeled as STRATEGY 01/06 through 06/06 at the top of each card.
+
+
+## Design Strategy Template (Module 07)
+
+Each of the 5–8 design strategies MUST follow this 8-element structure.
+This is the core deliverable of the entire research — where analysis becomes design action.
+
+### Strategy Generation Logic
+
+Follow this 5-step chain for each strategy:
+
+```
+Step 1: 事实发现 What exists?     → from Modules 01–04 analysis
+Step 2: 问题判断 What challenges?  → from Module 05
+Step 3: 设计机会 What opportunities? → cross with strategy matrix
+Step 4: 策略生成 How architecture responds? → spatial concept
+Step 5: 空间转译 How it becomes space? → spatial operations
+```
+
+### Strategy Generation Matrix
+
+Cross **problem sources** × **spatial strategy types** to generate strategies.
+This prevents empty conceptual language — every strategy is anchored to a specific problem.
+
+**Problem Sources (问题来源):**
+- 场地问题 (site constraints)
+- 人群问题 (user needs)
+- 文化问题 (cultural context)
+- 环境问题 (climate/ecology)
+
+**Spatial Strategy Types (空间策略类型):**
+
+| 类型 | 空间动作 |
+|------|---------|
+| 开放型 | 架空 / 边界开放 / 公共庭院 |
+| 聚落型 | 小体量组合 / 庭院组织 / 节点连接 |
+| 生态型 | 绿色廊道 / 景观融合 / 生态缓冲 |
+| 体验型 | 空间序列 / 仪式感 / 游览路径 |
+| 未来型 | 灵活空间 / 智慧系统 / 新产业融合 |
+
+### Individual Strategy Template
+
+```
+### 策略 N：【策略名称】（4–8 字，清晰传达核心主张）
+
+> 示例：开放共融型城市节点 / 庭院渗透式教学聚落 / 漂浮模块化生态岛
+
+**1. 核心问题 Problem（2–3 句）**
+从 Module 05 的"问题 → 机会"分析中提取，说明当前场地或项目面临的具体挑战。
+- 第一句：陈述现状或矛盾（引用具体数据或场地条件）
+- 第二句：说明如果不解决这个问题，对项目的影响是什么
+- 示例："基地东侧紧邻城市快速路（噪声 > 70dB），西侧与滨河绿地被围墙完全隔离。
+  若不处理这两侧界面，建筑将同时面临噪声干扰和景观资源浪费。"
+
+**2. 设计机会 Opportunity（2–3 句）**
+从限制条件中看到积极的设计可能，说明建筑介入后能创造什么新的空间价值。
+- 示例："噪声界面恰好是城市人流最密集的方向——将底层向城市打开，
+  建筑不仅可以屏蔽上层噪声，还能把过路人群转化为底层商业和文化空间的自然客流。"
+
+**3. 设计依据 Evidence（3 条，每条 1–2 句）**
+- 场地依据：来自 Module 02 的具体分析结论（地形 / 景观 / 交通 / 城市关系）
+- 文化/人群依据：来自 Module 03 的具体分析结论（地域文化 / 建筑传统 / 用户行为 / 社会需求）
+- 技术/气候依据：来自 Module 02.2 或 Module 04 的具体数据（体量指标 / 气候数据 / 日照 / 风向）
+
+**4. 设计概念 Concept（1–2 句）**
+选择一个明确的概念方向，并说明为什么适合本项目。概念不等于策略——概念是"做什么"，策略是"怎么做"。
+- 社会类：开放共融 / 社区共享 / 多元共生 / 场所记忆 / 过渡空间
+- 生态类：生态融合 / 绿色廊道 / 自然共生 / 气候应答 / 海绵系统
+- 空间类：庭院聚落 / 空间渗透 / 场所营造 / 轴线组织 / 层叠序列
+- 技术类：被动式环境控制（通风/遮阳/辐射制冷）/ 高性能表皮 / 模块化装配 / 光伏集成
+- 未来类：灵活可变 / 智慧建筑 / 新产业融合 / 共享经济空间
+
+**5. 空间动作 Spatial Operation（选择 3–5 个，从概念到空间的翻译）**
+这些必须是与策略直接相关的具体空间操作，不是泛泛的"优化空间"：
+底层架空 / 边界打开 / 渗透式界面 / 半室外过渡 / 庭院系统 / 空间序列 / 中轴组织 /
+对景关系 / 体量错动 / 屋顶利用 / 下沉空间 / 双层表皮 / 拔风天井 / 退台花园 /
+模块组合 / 架空连廊 / 视线通廊 / 灰空间节点
+
+**6. 参考案例 Reference（1–2 个）**
+来自 Module 06 的案例（或额外搜索），每个注明：
+- 案例名称 + 地点
+- 学习了什么（具体的策略或构造方式，不是"可以参考它的设计理念"）
+- 本项目的适用性（直接迁移 / 需要调整 / 仅作思路参考）
+- 示例："MVRV 深圳万科云城 — 学习其底层架空+商业街坊串联策略，本项目可直接迁移该逻辑。"
+
+**7. 适用条件 Applicability（1–2 句）**
+- 该项目类型的匹配度（文旅 / 公共建筑 / 城市更新 / 教育 / 办公 / 居住）
+- 适用规模范围（建筑面积 / 用地面积）
+- 任何前置条件（如：需要有城市界面、需要有高差、需要有一定密度）
+
+**8. 策略价值 Value（1–2 句）**
+- 这个策略解决的核心矛盾是什么？
+- 如果不采用这个策略，项目的设计品质会缺失什么？
+- 与 Module 05 的"设计机会"形成闭环呼应。
+```
+
+### Cross-Strategy Coherence Check
+
+生成全部 5–8 个策略后，做一次交叉检查：
+- [ ] 5–8 个策略是否覆盖了 Module 05 提炼的主要问题？（不遗漏）
+- [ ] 每个策略是否用到了 Module 06 中至少一个案例的启示？（不脱离研究）
+- [ ] 策略之间是否有明显的差异化？（空间动作不重复）
+- [ ] 是否存在互斥策略？（如有，标注为"A/B 方案"，供设计师选择）
+- [ ] 每个策略的空间动作是否可被设计人员直接作为下一步深化方向？
+
+### Strategy Quality Checklist
+
+Before finalizing each strategy, verify:
+- [ ] Anchored to a specific finding from Modules 01–05 (not generic)
+- [ ] Includes at least 3 concrete spatial operations (not just abstract concept)
+- [ ] References at least one evidence source + one precedent case
+- [ ] Distinguishable from other strategies (not the same idea rephrased)
+- [ ] Actionable — a designer reading it knows what to explore next
+- [ ] Self-contained — can be read and understood without referring to other strategies
 
 ---
 
@@ -544,9 +822,9 @@ specifies). The user can override any module's depth.
 
 ### Mechanism C: Phase-Based Default (fallback)
 If no keywords are detected and the user doesn't specify, fall back to phase-based defaults:
-- **Concept stage:** Modules 0, 1, 2, 5 at standard; 3, 4 at light
-- **Feasibility study:** All modules at standard
-- **Pre-construction:** Modules 0, 1, 3 at deep; rest at standard
+- **Concept stage:** Modules 01, 02, 03, 07 at standard; 04, 05 at light; 06 at standard
+- **Feasibility study:** All modules at standard; 06 at deep
+- **Pre-construction:** Modules 01, 02, 04 at deep; rest at standard
 
 ### Graceful Degradation
 In all cases, if an API call fails or web search returns nothing useful, degrade gracefully.

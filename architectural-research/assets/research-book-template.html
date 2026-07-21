@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architectural Research Book — [项目名称]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=Noto+Sans+SC:wght@200;300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  /* Primary */
+  --paper: #fafaf8;
+  --ink: #0a0a0a;
+  --accent: #9BBFE7;
+  --accent-rgb: 155, 191, 231;
+  --accent-on: #ffffff;
+
+  /* Grey scale */
+  --grey-1: #f0f0ee;
+  --grey-2: #d4d4d2;
+  --grey-3: #737373;
+
+  /* Text roles */
+  --text-primary: #0a0a0a;
+  --text-secondary: #525252;
+  --text-helper: #737373;
+  --text-placeholder: #a3a3a3;
+  --text-on-color: #ffffff;
+  --border-subtle: #e0e0e0;
+  --border-strong: #a3a3a3;
+
+  /* Font stack */
+  --sans: "Inter", "Helvetica Neue", "Helvetica", "Arial", system-ui, sans-serif;
+  --sans-zh: "PingFang SC", "Noto Sans SC", "Microsoft YaHei UI", "微软雅黑", sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+
+  /* Spacing — Carbon 2x Grid */
+  --sp-3: 8px;   --sp-4: 12px;  --sp-5: 16px;  --sp-6: 24px;
+  --sp-7: 32px;  --sp-8: 40px;  --sp-9: 48px;  --sp-10: 64px;
+  --sp-11: 80px; --sp-12: 96px; --sp-13: 160px;
+
+  /* Motion — Carbon */
+  --ease-prod: cubic-bezier(.2,0,.38,.9);
+  --ease-exp: cubic-bezier(.4,.14,.3,1);
+  --dur-fast: .11s;  --dur-mod: .24s;  --dur-slow: .4s;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  max-width:1000px;
+  margin:0 auto;
+  font-family:var(--sans),var(--sans-zh);
+  color:var(--ink);
+  background:var(--paper);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+.rb-cover-title{
+  font-family:var(--sans),var(--sans-zh);
+  font-weight:200; font-size:min(8vw,12vh);
+  line-height:1.1; letter-spacing:-0.02em;
+}
+.rb-h1{
+  font-family:var(--sans),var(--sans-zh);
+  font-weight:200; font-size:min(5vw,9vh);
+  line-height:1.15; letter-spacing:-0.01em;
+}
+.rb-h2{
+  font-family:var(--sans),var(--sans-zh);
+  font-weight:300; font-size:min(2.4vw,5vh);
+  line-height:1.3;
+}
+.rb-lead{
+  font-family:var(--sans),var(--sans-zh);
+  font-weight:400; font-size:max(16px,1.1vw);
+  line-height:1.6; color:var(--text-secondary);
+}
+.rb-body{
+  font-family:var(--sans),var(--sans-zh);
+  font-weight:400; font-size:max(15px,.95vw);
+  line-height:1.7; color:var(--text-primary);
+}
+.rb-body-sm{
+  font-family:var(--sans),var(--sans-zh);
+  font-weight:400; font-size:max(13px,.82vw);
+  line-height:1.6; color:var(--text-secondary);
+}
+.rb-meta{
+  font-family:var(--mono);
+  font-weight:500; font-size:max(12px,.72vw);
+  letter-spacing:0.04em; color:var(--text-helper);
+  text-transform:uppercase;
+}
+.rb-kpi{
+  font-family:var(--sans);
+  font-weight:200; font-size:min(6vw,10vh);
+  line-height:1; letter-spacing:-0.02em;
+}
+.rb-cap{
+  font-family:var(--sans),var(--sans-zh);
+  font-weight:400; font-size:max(12px,.72vw);
+  color:var(--text-helper); line-height:1.5;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+
+/* TOC Sidebar */
+#toc{
+  position:fixed; left:max(0px,calc((100vw - 1000px) / 2));
+  top:0; width:240px; height:100vh;
+  padding:var(--sp-7) var(--sp-5);
+  overflow-y:auto;
+  border-right:1px solid var(--border-subtle);
+  background:var(--paper);
+  z-index:100;
+}
+#toc-title{
+  font-family:var(--mono);
+  font-size:11px; font-weight:500;
+  letter-spacing:0.12em; color:var(--text-helper);
+  margin-bottom:var(--sp-7);
+}
+#toc a{
+  display:block; padding:6px 0 6px var(--sp-4);
+  font-size:13px; color:var(--text-secondary);
+  text-decoration:none; border-left:2px solid transparent;
+  transition:color var(--dur-fast), border-color var(--dur-fast);
+}
+#toc a:hover{ color:var(--accent); }
+#toc a.active{
+  color:var(--accent);
+  border-left-color:var(--accent);
+}
+
+/* Main content */
+#content{
+  margin-left:240px;
+  padding:var(--sp-8) var(--sp-7);
+}
+.module{
+  padding:var(--sp-8) 0 var(--sp-10);
+  border-bottom:1px solid var(--border-subtle);
+}
+.module:last-child{ border-bottom:none; }
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+
+/* 3.1 Cover */
+.rb-cover{
+  background:var(--accent); color:var(--accent-on);
+  min-height:60vh; display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  text-align:center; padding:var(--sp-10);
+  margin-left:-240px; /* full-width override */
+}
+
+/* 3.2 Module Header */
+.rb-module-head{ margin-bottom:var(--sp-8); }
+
+/* 3.3 KPI Row */
+.rb-kpi-row{
+  display:flex; gap:var(--sp-8);
+  padding:var(--sp-7) 0;
+  border-top:1px solid var(--border-subtle);
+  border-bottom:1px solid var(--border-subtle);
+  margin:var(--sp-7) 0;
+}
+.rb-kpi-item{ flex:1; }
+
+/* 3.4 Image Grid */
+.rb-img-grid{
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:var(--sp-5); margin:var(--sp-6) 0;
+}
+.rb-img-grid img{
+  width:100%; aspect-ratio:16/10; object-fit:cover;
+  display:block; cursor:pointer;
+  transition:opacity var(--dur-fast);
+}
+.rb-img-grid img:hover{ opacity:.82; }
+.rb-img-grid figcaption{ margin-top:var(--sp-3); }
+
+/* 3.5 Table */
+.rb-table{
+  width:100%; border-collapse:collapse;
+  margin:var(--sp-6) 0; font-size:max(13px,.82vw);
+}
+.rb-table thead tr{ background:var(--accent); color:var(--accent-on); }
+.rb-table th{
+  padding:var(--sp-4); text-align:left; font-weight:500;
+  font-family:var(--sans),var(--sans-zh);
+}
+.rb-table td{ padding:var(--sp-4); }
+.rb-table tbody tr{ border-bottom:1px solid var(--border-subtle); }
+.rb-table tbody tr:nth-child(even){ background:var(--grey-1); }
+.rb-table a{ color:var(--accent); }
+
+/* 3.6 Strategy Card */
+.rb-strategy-card{
+  border-left:3px solid var(--accent);
+  padding:var(--sp-5) var(--sp-6);
+  margin-bottom:var(--sp-6);
+  background:var(--grey-1);
+}
+.rb-strategy-card .rb-meta{ color:var(--accent); }
+
+/* 3.7 Design Challenge Chain */
+.rb-challenge-chain{
+  display:flex; align-items:center; gap:var(--sp-5);
+  padding:var(--sp-6) 0; margin:var(--sp-5) 0;
+}
+.rb-challenge-chain .rb-arrow{ font-size:24px; color:var(--accent); flex-shrink:0; }
+.rb-cc-box{
+  flex:1; padding:var(--sp-5); background:var(--grey-1);
+}
+
+/* 3.8 Mermaid */
+.rb-mermaid{
+  background:var(--grey-1); padding:var(--sp-5);
+  margin:var(--sp-6) 0; border:1px solid var(--border-subtle);
+  overflow-x:auto;
+}
+
+/* Footnote */
+.rb-footnote{
+  font-size:max(11px,.68vw); color:var(--text-helper);
+  margin-top:var(--sp-6); padding-top:var(--sp-4);
+  border-top:1px solid var(--border-subtle);
+}
+
+/* ============================================================
+   FLOATING UI
+   ============================================================ */
+#btn-top{
+  position:fixed; bottom:var(--sp-6); right:var(--sp-6);
+  width:40px; height:40px;
+  border-radius:50%; border:1px solid var(--border-strong);
+  background:var(--paper); color:var(--text-secondary);
+  font-size:20px; cursor:pointer; display:none;
+  align-items:center; justify-content:center;
+  z-index:200; transition:opacity var(--dur-fast);
+}
+#btn-top.visible{ display:flex; }
+
+#btn-edit{
+  position:fixed; bottom:var(--sp-6); right:calc(var(--sp-6) + 52px);
+  padding:8px 16px; font-size:13px; cursor:pointer;
+  border:1px solid var(--border-strong);
+  background:var(--paper); color:var(--text-secondary);
+  z-index:200; transition:background var(--dur-fast);
+}
+#btn-edit:hover{ background:var(--grey-1); }
+#btn-edit.active{ background:var(--accent); color:var(--accent-on); border-color:var(--accent); }
+
+/* Lightbox */
+#lightbox{
+  display:none; position:fixed; inset:0; z-index:999;
+  background:rgba(0,0,0,.88); align-items:center; justify-content:center;
+}
+#lightbox.open{ display:flex; }
+#lightbox img{ max-width:90vw; max-height:90vh; object-fit:contain; }
+#lightbox-close{
+  position:absolute; top:var(--sp-6); right:var(--sp-6);
+  width:40px; height:40px; border:none; background:none;
+  color:#fff; font-size:28px; cursor:pointer;
+}
+
+/* ============================================================
+   EDIT MODE PROTECTION
+   ============================================================ */
+[contenteditable=true] .rb-cover{ display:flex!important; flex-direction:column!important; }
+[contenteditable=true] .rb-kpi-row{ display:flex!important; }
+[contenteditable=true] .rb-img-grid{ display:grid!important; grid-template-columns:repeat(3,1fr)!important; }
+[contenteditable=true] .rb-challenge-chain{ display:flex!important; }
+[contenteditable=true] .rb-table{ display:table!important; }
+[contenteditable=true] .rb-table thead{ display:table-header-group!important; }
+[contenteditable=true] .rb-table tbody{ display:table-row-group!important; }
+[contenteditable=true] .rb-table tr{ display:table-row!important; }
+[contenteditable=true] .rb-table th,
+[contenteditable=true] .rb-table td{ display:table-cell!important; }
+
+/* ============================================================
+   PLACEHOLDER IMAGE
+   ============================================================ */
+.rb-placeholder-img{
+  width:100%; aspect-ratio:16/10; background:var(--grey-1);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text-placeholder); font-family:var(--mono);
+  font-size:max(11px,.68vw);
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print{
+  @page{ size:A4; margin:0; }
+  body{ max-width:210mm; }
+  *{ -webkit-print-color-adjust:exact; print-color-adjust:exact; forced-color-adjust:none; }
+  #toc{ display:none; }
+  #content{ margin-left:0; padding:2cm; }
+  .module{ break-before:page; border-bottom:none; padding:0; }
+  .rb-cover{ break-after:page; min-height:297mm; margin-left:0; }
+  .rb-img-grid{ break-inside:avoid; }
+  .rb-table{ break-inside:avoid; }
+  .rb-strategy-card{ break-inside:avoid; }
+  .rb-challenge-chain{ break-inside:avoid; }
+  #btn-top,#btn-edit{ display:none!important; }
+  .rb-placeholder-img{ background:none; border:1px dashed #ccc; }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media screen and (max-width:900px){
+  #toc{
+    position:fixed; left:0; top:0; width:100%; height:auto;
+    max-height:100vh; border-right:none; border-bottom:1px solid var(--border-subtle);
+    transform:translateY(-100%); transition:transform var(--dur-mod) var(--ease-prod);
+  }
+  #toc.open{ transform:translateY(0); }
+  #content{ margin-left:0; padding:var(--sp-6) var(--sp-5); }
+  .rb-cover{ margin-left:0; }
+  #btn-toc-toggle{
+    display:flex; position:fixed; top:var(--sp-4); left:var(--sp-4);
+    width:36px; height:36px; z-index:201;
+    border:1px solid var(--border-strong); background:var(--paper);
+    font-size:18px; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+}
+#btn-toc-toggle{ display:none; }
+@media screen and (max-width:900px){ #btn-toc-toggle{ display:flex; } }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOC SIDEBAR
+     ============================================================ -->
+<nav id="toc">
+  <div id="toc-title">目录 / INDEX</div>
+  <a href="#cover">封面 Cover</a>
+  <a href="#module-01">01 项目理解</a>
+  <a href="#module-02">02 场地与环境研究</a>
+  <a href="#module-03">03 城市、人群与文化研究</a>
+  <a href="#module-04">04 功能需求与空间推演</a>
+  <a href="#module-05">05 问题提炼与设计挑战</a>
+  <a href="#module-06">06 案例对标与启示</a>
+  <a href="#module-07">07 设计策略探索</a>
+  <a href="#module-08">08 空间概念与下一步建议</a>
+</nav>
+
+<button id="btn-toc-toggle" onclick="document.getElementById('toc').classList.toggle('open')" aria-label="目录">☰</button>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main id="content">
+
+<!-- COVER -->
+<header class="rb-cover" id="cover">
+  <div class="rb-meta" style="opacity:.72;letter-spacing:.18em;color:var(--accent-on)">ARCHITECTURAL RESEARCH BOOK</div>
+  <h1 class="rb-cover-title" style="margin-top:var(--sp-7)">[项目名称]</h1>
+  <p class="rb-lead" style="max-width:48ch;margin-top:var(--sp-6);opacity:.86;color:var(--accent-on)">[副标题 / 任务书来源 — 2-3 句简述项目背景]</p>
+  <div class="rb-meta" style="margin-top:var(--sp-7);opacity:.62;color:var(--accent-on)">[YYYY.MM.DD] · [作者] · HTML Research Book</div>
+</header>
+
+<!-- ============================================================
+     MODULE 01 — 项目理解
+     ============================================================ -->
+<section class="module" id="module-01">
+  <header class="rb-module-head">
+    <div class="rb-meta" style="color:var(--accent);letter-spacing:.16em;margin-bottom:var(--sp-4)">01 / 08</div>
+    <h2 class="rb-h1">项目理解 <span style="font-weight:300;opacity:.56">Project Understanding</span></h2>
+    <p class="rb-lead" style="max-width:52ch;margin-top:var(--sp-4)">从任务书提取核心信息，识别显性条件与隐性需求，建立项目认知基线。</p>
+  </header>
+
+  <!-- KPI Data Hero -->
+  <div class="rb-kpi-row">
+    <div class="rb-kpi-item">
+      <div class="rb-kpi">78,300</div>
+      <div class="rb-meta" style="margin-top:var(--sp-3)">用地面积 (㎡)</div>
+    </div>
+    <div class="rb-kpi-item">
+      <div class="rb-kpi">1.2</div>
+      <div class="rb-meta" style="margin-top:var(--sp-3)">容积率 FAR</div>
+    </div>
+    <div class="rb-kpi-item">
+      <div class="rb-kpi">24m</div>
+      <div class="rb-meta" style="margin-top:var(--sp-3)">建筑限高</div>
+    </div>
+    <div class="rb-kpi-item">
+      <div class="rb-kpi">35%</div>
+      <div class="rb-meta" style="margin-top:var(--sp-3)">建筑密度</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-6);margin-top:var(--sp-7)">
+    <div>
+      <h3 class="rb-h2" style="font-size:max(18px,1.1vw);margin-bottom:var(--sp-4)">已识别信息</h3>
+      <p class="rb-body">项目类型、用地面积、建筑面积、功能需求、建设目标等来源于任务书中的明确内容。本报告将其作为分析起点，逐项验证与深化。</p>
+    </div>
+    <div>
+      <h3 class="rb-h2" style="font-size:max(18px,1.1vw);margin-bottom:var(--sp-4)">待补充信息</h3>
+      <p class="rb-body">地形条件、周边环境、现状建筑情况等信息尚未在任务书中明确。建议在后续阶段通过实地调研与甲方沟通补充。</p>
+    </div>
+  </div>
+
+  <!-- Mermaid: derivation chain -->
+  <p class="rb-body-sm" style="margin-top:var(--sp-7);color:var(--text-helper)">报告推导逻辑：</p>
+  <pre class="mermaid rb-mermaid">
+graph TD
+  A["项目理解"] --> B["场地研究"]
+  B --> C["人群文化"]
+  C --> D["功能推演"]
+  D --> E["问题提炼"]
+  E --> F["案例启示"]
+  F --> G["策略探索"]
+  G --> H["空间概念"]
+  </pre>
+
+  <footer class="rb-footnote">
+    注：以上数据基于任务书初步提取，待任务书补充后更新。AI 推断内容已标注，需甲方确认。
+  </footer>
+</section>
+
+<!-- ============================================================
+     MODULE 02 — 场地与环境研究
+     ============================================================ -->
+<section class="module" id="module-02">
+  <header class="rb-module-head">
+    <div class="rb-meta" style="color:var(--accent);letter-spacing:.16em;margin-bottom:var(--sp-4)">02 / 08</div>
+    <h2 class="rb-h1">场地与环境研究 <span style="font-weight:300;opacity:.56">Site &amp; Environment</span></h2>
+    <p class="rb-lead" style="max-width:52ch;margin-top:var(--sp-4)">分析场地区位、交通、自然环境与现状条件，将环境信息转化为设计依据。</p>
+  </header>
+
+  <!-- 2.1 区位与交通 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">2.1 区位与交通分析</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-6);margin-top:var(--sp-5)">
+    <div>
+      <p class="rb-body">[场地区位描述 — 城市位置、周边功能区、交通可达性分析。包括主要道路、公共交通节点、未来片区规划。]</p>
+      <p class="rb-body" style="margin-top:var(--sp-4)">[人流方向与交通条件分析，识别主要到达路径与潜在的城市接口位置。]</p>
+    </div>
+    <div>
+      <div class="rb-placeholder-img">[区位分析图 / 地图标注]</div>
+      <p class="rb-cap" style="margin-top:var(--sp-3)">图 2.1: 场地区位与交通分析。来源：OpenStreetMap / 自绘</p>
+    </div>
+  </div>
+
+  <!-- 2.2 自然环境 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">2.2 自然环境分析</h3>
+  <div class="rb-kpi-row" style="margin-top:var(--sp-5)">
+    <div class="rb-kpi-item">
+      <div class="rb-kpi">27.3°</div>
+      <div class="rb-meta" style="margin-top:var(--sp-3)">年均气温 (℃)</div>
+    </div>
+    <div class="rb-kpi-item">
+      <div class="rb-kpi">82%</div>
+      <div class="rb-meta" style="margin-top:var(--sp-3)">年均湿度</div>
+    </div>
+    <div class="rb-kpi-item">
+      <div class="rb-kpi">2,450</div>
+      <div class="rb-meta" style="margin-top:var(--sp-3)">年日照 (h)</div>
+    </div>
+    <div class="rb-kpi-item">
+      <div class="rb-kpi">3.2</div>
+      <div class="rb-meta" style="margin-top:var(--sp-3)">年均风速 (m/s)</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-5);margin-top:var(--sp-6)">
+    <div style="padding:var(--sp-5);background:var(--grey-1)">
+      <div class="rb-meta">高温高湿</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-3)">需强化自然通风与遮阳策略，减少机械制冷依赖。</p>
+    </div>
+    <div style="padding:var(--sp-5);background:var(--grey-1)">
+      <div class="rb-meta">丰富降雨</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-3)">雨水管理成为场地设计关键要素，可结合景观一体化处理。</p>
+    </div>
+    <div style="padding:var(--sp-5);background:var(--grey-1)">
+      <div class="rb-meta">海陆风</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-3)">利用主导风向组织建筑朝向与开口，形成被动式冷却。</p>
+    </div>
+  </div>
+
+  <!-- 2.3 场地现状 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">2.3 场地现状分析</h3>
+  <div class="rb-img-grid" style="grid-template-columns:repeat(2,1fr)">
+    <figure>
+      <div class="rb-placeholder-img" style="aspect-ratio:16/10">[场地现状照片 1]</div>
+      <figcaption class="rb-cap">图 2.2: 场地现状航拍。来源：Google Earth</figcaption>
+    </figure>
+    <figure>
+      <div class="rb-placeholder-img" style="aspect-ratio:16/10">[场地现状照片 2]</div>
+      <figcaption class="rb-cap">图 2.3: 场地周边环境。来源：实地拍摄</figcaption>
+    </figure>
+  </div>
+
+  <footer class="rb-footnote">
+    注：气候数据基于同气候区均值推演，需结合实测微调。交通分析基于城市类型推断，建议实地调研核实。
+  </footer>
+</section>
+
+<!-- ============================================================
+     MODULE 03 — 城市、人群与文化研究
+     ============================================================ -->
+<section class="module" id="module-03">
+  <header class="rb-module-head">
+    <div class="rb-meta" style="color:var(--accent);letter-spacing:.16em;margin-bottom:var(--sp-4)">03 / 08</div>
+    <h2 class="rb-h1">城市、人群与文化研究 <span style="font-weight:300;opacity:.56">Context &amp; User</span></h2>
+    <p class="rb-lead" style="max-width:52ch;margin-top:var(--sp-4)">理解使用者的行为模式、生活方式与地域文化，将其转译为空间设计语言。</p>
+  </header>
+
+  <!-- 3.1 人群分析 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">3.1 人群画像</h3>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-5);margin-top:var(--sp-5)">
+    <div style="padding:var(--sp-5);text-align:center;border:1px solid var(--border-subtle)">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);margin:0 auto var(--sp-4);opacity:.3"></div>
+      <div class="rb-body-sm" style="font-weight:500">游客</div>
+      <p class="rb-cap" style="margin-top:var(--sp-3)">体验需求 · 社交分享 · 景观打卡</p>
+    </div>
+    <div style="padding:var(--sp-5);text-align:center;border:1px solid var(--border-subtle)">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);margin:0 auto var(--sp-4);opacity:.3"></div>
+      <div class="rb-body-sm" style="font-weight:500">居民</div>
+      <p class="rb-cap" style="margin-top:var(--sp-3)">日常生活 · 社区交流 · 公共空间</p>
+    </div>
+    <div style="padding:var(--sp-5);text-align:center;border:1px solid var(--border-subtle)">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);margin:0 auto var(--sp-4);opacity:.3"></div>
+      <div class="rb-body-sm" style="font-weight:500">运营方</div>
+      <p class="rb-cap" style="margin-top:var(--sp-3)">管理效率 · 成本控制 · 品牌形象</p>
+    </div>
+    <div style="padding:var(--sp-5);text-align:center;border:1px solid var(--border-subtle)">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);margin:0 auto var(--sp-4);opacity:.3"></div>
+      <div class="rb-body-sm" style="font-weight:500">社区</div>
+      <p class="rb-cap" style="margin-top:var(--sp-3)">经济带动 · 文化传承 · 生态保护</p>
+    </div>
+  </div>
+
+  <!-- 3.2 生活方式 → 空间 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">3.2 生活方式 → 空间转译</h3>
+  <table class="rb-table">
+    <thead>
+      <tr><th>人群</th><th>核心需求</th><th>空间回应</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>年轻游客</td><td>交流、分享、体验</td><td>公共客厅 · 开放庭院 · 活动平台</td></tr>
+      <tr><td>家庭游客</td><td>安全、便利、亲子</td><td>家庭单元 · 儿童空间 · 浅水景观</td></tr>
+      <tr><td>本地居民</td><td>日常生活、社区感</td><td>社区集市 · 共享菜园 · 滨水步道</td></tr>
+      <tr><td>运营团队</td><td>高效动线、后勤</td><td>独立服务通道 · 集中后勤区</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 3.3 地域文化转译 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">3.3 地域文化 → 空间转译</h3>
+  <div class="rb-challenge-chain">
+    <div class="rb-cc-box">
+      <div class="rb-meta">文化原型</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3)">传统水上聚落 / 高脚屋</div>
+    </div>
+    <span class="rb-arrow">→</span>
+    <div class="rb-cc-box">
+      <div class="rb-meta">空间特征</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3)">架空底层 · 通风廊道 · 水岸界面</div>
+    </div>
+    <span class="rb-arrow">→</span>
+    <div class="rb-cc-box">
+      <div class="rb-meta">现代转译</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3)">底层开放公共空间 · 现代庭院组织</div>
+    </div>
+  </div>
+
+  <footer class="rb-footnote">
+    注：人群分析基于项目类型与区位推断，建议结合甲方提供的用户数据深化。文化研究基于地域文献，需结合实地调研。
+  </footer>
+</section>
+
+<!-- ============================================================
+     MODULE 04 — 功能需求与空间推演
+     ============================================================ -->
+<section class="module" id="module-04">
+  <header class="rb-module-head">
+    <div class="rb-meta" style="color:var(--accent);letter-spacing:.16em;margin-bottom:var(--sp-4)">04 / 08</div>
+    <h2 class="rb-h1">功能需求与空间推演 <span style="font-weight:300;opacity:.56">Program Analysis</span></h2>
+    <p class="rb-lead" style="max-width:52ch;margin-top:var(--sp-4)">从任务书的功能面积出发，推演空间组织逻辑与流线关系。</p>
+  </header>
+
+  <!-- 4.1 功能面积 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">4.1 功能面积平衡</h3>
+  <table class="rb-table">
+    <thead>
+      <tr><th>功能分区</th><th>面积 (㎡)</th><th>占比</th><th>关键空间</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>公共接待</td><td>2,400</td><td>18%</td><td>大堂 · 餐厅 · 多功能厅</td></tr>
+      <tr><td>客房区</td><td>7,200</td><td>55%</td><td>标准间 · 套房 · 别墅</td></tr>
+      <tr><td>后勤服务</td><td>1,800</td><td>14%</td><td>厨房 · 洗衣 · 员工区</td></tr>
+      <tr><td>康体娱乐</td><td>1,200</td><td>9%</td><td>泳池 · SPA · 健身房</td></tr>
+      <tr><td>室外景观</td><td>500</td><td>4%</td><td>庭院 · 平台 · 步道</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 4.2 流线分析 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">4.2 功能流线分析</h3>
+  <pre class="mermaid rb-mermaid">
+flowchart LR
+  A["入口广场"] --> B["大堂/接待"]
+  B --> C["公共区 (餐厅/会议)"]
+  B --> D["客房区"]
+  B --> E["康体娱乐"]
+  F["后勤入口"] --> G["服务通道"]
+  G --> C
+  G --> D
+  </pre>
+
+  <!-- 4.3 空间关系 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">4.3 空间关系建议</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-5);margin-top:var(--sp-5)">
+    <div style="padding:var(--sp-5);border-top:3px solid var(--accent)">
+      <div class="rb-meta" style="color:var(--accent)">公共界面</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-3)">面向主要景观与城市方向，形成开放、可达的空间姿态。</p>
+    </div>
+    <div style="padding:var(--sp-5);border-top:3px solid var(--accent)">
+      <div class="rb-meta" style="color:var(--accent)">私密层级</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-3)">客房区向后延伸，通过庭院与绿化形成安静的休憩环境。</p>
+    </div>
+    <div style="padding:var(--sp-5);border-top:3px solid var(--accent)">
+      <div class="rb-meta" style="color:var(--accent)">服务独立</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-3)">后勤动线独立于客人动线，避免流线交叉与视线干扰。</p>
+    </div>
+  </div>
+
+  <footer class="rb-footnote">
+    注：功能面积基于任务书初步数据整理，实际面积以深化设计为准。
+  </footer>
+</section>
+
+<!-- ============================================================
+     MODULE 05 — 问题提炼与设计挑战
+     ============================================================ -->
+<section class="module" id="module-05">
+  <header class="rb-module-head">
+    <div class="rb-meta" style="color:var(--accent);letter-spacing:.16em;margin-bottom:var(--sp-4)">05 / 08</div>
+    <h2 class="rb-h1">问题提炼与设计挑战 <span style="font-weight:300;opacity:.56">Design Challenges</span></h2>
+    <p class="rb-lead" style="max-width:52ch;margin-top:var(--sp-4)">从前期分析中提炼核心矛盾，识别设计机会，明确建筑学回应方向。</p>
+  </header>
+
+  <!-- Challenge 1 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">Challenge 01: 城市界面</h3>
+  <div class="rb-challenge-chain">
+    <div class="rb-cc-box">
+      <div class="rb-meta">问题</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">基地与城市联系弱，被道路与围墙隔离</div>
+    </div>
+    <span class="rb-arrow">→</span>
+    <div class="rb-cc-box">
+      <div class="rb-meta">机会</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">创造城市公共接口，成为社区新锚点</div>
+    </div>
+    <span class="rb-arrow">→</span>
+    <div class="rb-cc-box">
+      <div class="rb-meta">策略方向</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">开放式底层空间 + 公共步道系统</div>
+    </div>
+  </div>
+
+  <!-- Challenge 2 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">Challenge 02: 气候应对</h3>
+  <div class="rb-challenge-chain">
+    <div class="rb-cc-box">
+      <div class="rb-meta">问题</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">高温高湿气候，常规封闭式建筑能耗高</div>
+    </div>
+    <span class="rb-arrow">→</span>
+    <div class="rb-cc-box">
+      <div class="rb-meta">机会</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">以被动式策略定义建筑形态</div>
+    </div>
+    <span class="rb-arrow">→</span>
+    <div class="rb-cc-box">
+      <div class="rb-meta">策略方向</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">架空通风 + 深挑檐 + 半室外过渡空间</div>
+    </div>
+  </div>
+
+  <!-- Challenge 3 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">Challenge 03: 文化表达</h3>
+  <div class="rb-challenge-chain">
+    <div class="rb-cc-box">
+      <div class="rb-meta">问题</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">地域文化符号易沦为表面装饰</div>
+    </div>
+    <span class="rb-arrow">→</span>
+    <div class="rb-cc-box">
+      <div class="rb-meta">机会</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">以空间组织而非符号表达文化认同</div>
+    </div>
+    <span class="rb-arrow">→</span>
+    <div class="rb-cc-box">
+      <div class="rb-meta">策略方向</div>
+      <div class="rb-body-sm" style="margin-top:var(--sp-3);font-weight:500">院落体系 + 水岸空间序列</div>
+    </div>
+  </div>
+
+  <footer class="rb-footnote">
+    注：以上问题提炼基于任务书与场地分析的综合判断，属于 AI 推断，需结合甲方反馈确认优先级。
+  </footer>
+</section>
+
+<!-- ============================================================
+     MODULE 06 — 案例对标与启示
+     ============================================================ -->
+<section class="module" id="module-06">
+  <header class="rb-module-head">
+    <div class="rb-meta" style="color:var(--accent);letter-spacing:.16em;margin-bottom:var(--sp-4)">06 / 08</div>
+    <h2 class="rb-h1">案例对标与启示 <span style="font-weight:300;opacity:.56">Precedent Studies</span></h2>
+    <p class="rb-lead" style="max-width:52ch;margin-top:var(--sp-4)">从全球案例中提取可学习的策略，而非寻找形式参照。</p>
+  </header>
+
+  <!-- Image Grid -->
+  <div class="rb-img-grid">
+    <figure>
+      <div class="rb-placeholder-img">[案例 1: Shebara Resort]</div>
+      <figcaption class="rb-cap">图 6.1: Shebara Resort — 100% 离网光伏度假村</figcaption>
+    </figure>
+    <figure>
+      <div class="rb-placeholder-img">[案例 2: 三亚艾迪逊]</div>
+      <figcaption class="rb-cap">图 6.2: 三亚艾迪逊酒店 — 水景庭院组织</figcaption>
+    </figure>
+    <figure>
+      <div class="rb-placeholder-img">[案例 3: Amanjiwo]</div>
+      <figcaption class="rb-cap">图 6.3: Amanjiwo — 地域文化空间转译</figcaption>
+    </figure>
+  </div>
+
+  <!-- Comparative Table -->
+  <table class="rb-table">
+    <thead>
+      <tr><th>案例项目</th><th>地点</th><th>GFA</th><th>关键策略</th><th>可学内容</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Shebara Resort</td><td>沙特</td><td>—</td>
+        <td>100% 离网光伏</td>
+        <td>生态自持系统</td>
+      </tr>
+      <tr>
+        <td>三亚艾迪逊酒店</td><td>三亚</td><td>45,000㎡</td>
+        <td>水景庭院组织</td>
+        <td>院落式空间序列</td>
+      </tr>
+      <tr>
+        <td>Amanjiwo</td><td>印尼</td><td>—</td>
+        <td>地域文化转译</td>
+        <td>文化空间表达</td>
+      </tr>
+      <tr>
+        <td>六善青城山</td><td>成都</td><td>—</td>
+        <td>院落聚落</td>
+        <td>小体量组合</td>
+      </tr>
+      <tr>
+        <td>Alila Villas Uluwatu</td><td>巴厘岛</td><td>—</td>
+        <td>架空 + 景观融合</td>
+        <td>生态地形处理</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer class="rb-footnote">
+    注：案例信息来源于公开建筑媒体报道与设计网站。GFA 标注 "—" 表示未找到可靠数据。建议补充国内同类型项目案例。
+  </footer>
+</section>
+
+<!-- ============================================================
+     MODULE 07 — 设计策略探索
+     ============================================================ -->
+<section class="module" id="module-07">
+  <header class="rb-module-head">
+    <div class="rb-meta" style="color:var(--accent);letter-spacing:.16em;margin-bottom:var(--sp-4)">07 / 08</div>
+    <h2 class="rb-h1">设计策略探索 <span style="font-weight:300;opacity:.56">Design Strategy</span></h2>
+    <p class="rb-lead" style="max-width:52ch;margin-top:var(--sp-4)">基于前期分析生成多方向设计策略，供设计团队筛选与深化。</p>
+  </header>
+
+  <!-- Strategy 1 -->
+  <div class="rb-strategy-card">
+    <div class="rb-meta" style="color:var(--accent)">策略 01 / 06</div>
+    <h3 class="rb-h2" style="margin-top:var(--sp-3);font-size:max(20px,1.3vw)">开放共融型城市节点</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5);margin-top:var(--sp-5)">
+      <div>
+        <div class="rb-meta" style="font-size:11px">核心问题</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">基地与城市缺乏联系，功能内向封闭。</p>
+        <div class="rb-meta" style="font-size:11px;margin-top:var(--sp-5)">空间动作</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">底层架空 · 边界开放 · 公共庭院 · 城市步道接入</p>
+      </div>
+      <div>
+        <div class="rb-meta" style="font-size:11px">设计依据</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">场地位于城市主干道交汇处，周边社区缺少公共空间。开放底层可将建筑转化为城市公共生活的容器。</p>
+        <div class="rb-meta" style="font-size:11px;margin-top:var(--sp-5)">适用类型</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">文旅项目 · 公共建筑 · 城市更新</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strategy 2 -->
+  <div class="rb-strategy-card">
+    <div class="rb-meta" style="color:var(--accent)">策略 02 / 06</div>
+    <h3 class="rb-h2" style="margin-top:var(--sp-3);font-size:max(20px,1.3vw)">生态融合型聚落</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5);margin-top:var(--sp-5)">
+      <div>
+        <div class="rb-meta" style="font-size:11px">核心问题</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">大尺度建筑体量对自然场地的侵入。</p>
+        <div class="rb-meta" style="font-size:11px;margin-top:var(--sp-5)">空间动作</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">小体量组合 · 庭院组织 · 绿色廊道 · 景观渗透</p>
+      </div>
+      <div>
+        <div class="rb-meta" style="font-size:11px">设计依据</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">场地拥有丰富自然景观资源，化整为零可减少对地形与植被的破坏，同时创造丰富的室外空间层次。</p>
+        <div class="rb-meta" style="font-size:11px;margin-top:var(--sp-5)">适用类型</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">度假酒店 · 生态度假村 · 低密度社区</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Strategy 3 -->
+  <div class="rb-strategy-card">
+    <div class="rb-meta" style="color:var(--accent)">策略 03 / 06</div>
+    <h3 class="rb-h2" style="margin-top:var(--sp-3);font-size:max(20px,1.3vw)">气候驱动型空间</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-5);margin-top:var(--sp-5)">
+      <div>
+        <div class="rb-meta" style="font-size:11px">核心问题</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">高温高湿气候下建筑能耗高、舒适度差。</p>
+        <div class="rb-meta" style="font-size:11px;margin-top:var(--sp-5)">空间动作</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">架空通风 · 深挑檐 · 半室外过渡 · 通风廊道</p>
+      </div>
+      <div>
+        <div class="rb-meta" style="font-size:11px">设计依据</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">年均温 27.3°C，湿度 82%。被动式通风可显著降低制冷负荷。传统高脚屋提供的架空原型可现代转译。</p>
+        <div class="rb-meta" style="font-size:11px;margin-top:var(--sp-5)">适用类型</div>
+        <p class="rb-body-sm" style="margin-top:var(--sp-3)">热带/亚热带项目 · 度假建筑 · 公共建筑</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="rb-footnote">
+    注：以上 6 条策略（骨架展示 3 条）为 AI 基于前期分析生成的设计方向，供设计人员筛选。策略并非最终方案，需结合团队讨论与甲方反馈进一步收敛。
+  </footer>
+</section>
+
+<!-- ============================================================
+     MODULE 08 — 空间概念与下一步建议
+     ============================================================ -->
+<section class="module" id="module-08">
+  <header class="rb-module-head">
+    <div class="rb-meta" style="color:var(--accent);letter-spacing:.16em;margin-bottom:var(--sp-4)">08 / 08</div>
+    <h2 class="rb-h1">空间概念与下一步 <span style="font-weight:300;opacity:.56">Spatial Concept &amp; Next</span></h2>
+    <p class="rb-lead" style="max-width:52ch;margin-top:var(--sp-4)">将策略收敛为空间概念方向，并提出后续深化建议。</p>
+  </header>
+
+  <!-- 核心结论 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">核心发现</h3>
+  <ol class="rb-body" style="padding-left:1.5em;margin-top:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-4)">
+    <li><strong>城市角色</strong> — 项目不应是封闭的度假飞地，而应成为城市公共生活的延伸节点。</li>
+    <li><strong>气候即形式</strong> — 被动式通风与遮阳策略不应是后期叠加的技术措施，而应作为建筑形式生成的原动力。</li>
+    <li><strong>文化通过空间表达</strong> — 传统聚落的空间组织逻辑（院落、架空、水岸序列）比符号化装饰更有建筑学价值。</li>
+    <li><strong>小体量聚落优于大体量单体</strong> — 化整为零不仅是生态策略，更创造差异化的空间体验。</li>
+    <li><strong>案例学习策略，不学习形式</strong> — 每个案例背后的空间组织逻辑与设计决策链比最终形态更有借鉴意义。</li>
+  </ol>
+
+  <!-- 风险评估 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">风险评估</h3>
+  <table class="rb-table">
+    <thead>
+      <tr><th>风险项</th><th>影响程度</th><th>应对建议</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>规划条件不确定</td><td>高</td><td>优先确认规划条件，作为设计输入基线</td></tr>
+      <tr><td>甲方偏好与策略方向偏离</td><td>中</td><td>多方向展示，保持灵活性</td></tr>
+      <tr><td>场地信息不完整</td><td>中</td><td>建议安排实地调研，补充地形与现状数据</td></tr>
+      <tr><td>气候数据依赖推演</td><td>低</td><td>后期接入气象站实测数据验证</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 下一步 -->
+  <h3 class="rb-h2" style="margin-top:var(--sp-7)">下一步建议</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-5);margin-top:var(--sp-5)">
+    <div style="padding:var(--sp-5);text-align:center">
+      <div class="rb-kpi" style="font-size:min(4vw,6vh);color:var(--accent)">01</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-4)">策略筛选：设计团队从 6 条策略中选出 2-3 条深入发展</p>
+    </div>
+    <div style="padding:var(--sp-5);text-align:center">
+      <div class="rb-kpi" style="font-size:min(4vw,6vh);color:var(--accent)">02</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-4)">实地调研：安排场地考察，补充地形、植被、周边环境数据</p>
+    </div>
+    <div style="padding:var(--sp-5);text-align:center">
+      <div class="rb-kpi" style="font-size:min(4vw,6vh);color:var(--accent)">03</div>
+      <p class="rb-body-sm" style="margin-top:var(--sp-4)">概念方案：基于选定策略进行第一轮空间概念设计</p>
+    </div>
+  </div>
+
+  <footer class="rb-footnote">
+    注：本报告为建筑前期研究阶段的辅助工具，所有分析结论与策略建议仅供设计团队参考。关键决策需结合实地调研、甲方沟通与专业判断。
+  </footer>
+</section>
+
+</main>
+
+<!-- ============================================================
+     BACK TO TOP + EDIT TOGGLE
+     ============================================================ -->
+<button id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到顶部" aria-label="回到顶部">↑</button>
+<button id="btn-edit" onclick="toggleEditMode()" title="编辑模式" aria-label="编辑">✎ 编辑</button>
+
+<!-- ============================================================
+     LIGHTBOX
+     ============================================================ -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()" aria-label="关闭">×</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', function(){
+  initTOCObserver();
+  initKeyboardNav();
+  initBackToTop();
+  initLightbox();
+  initMermaid();
+});
+
+/* ============================================================
+   TOC INTERSECTION OBSERVER
+   ============================================================ */
+function initTOCObserver(){
+  var tocLinks = document.querySelectorAll('#toc a');
+  var modules = document.querySelectorAll('.module, .rb-cover');
+  if(!tocLinks.length || !modules.length) return;
+
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var id = entry.target.id || 'cover';
+        tocLinks.forEach(function(link){
+          link.classList.remove('active');
+          if(link.getAttribute('href') === '#' + id){
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  modules.forEach(function(m){ observer.observe(m); });
+}
+
+/* ============================================================
+   KEYBOARD NAVIGATION
+   ============================================================ */
+function initKeyboardNav(){
+  var modules = Array.from(document.querySelectorAll('.module'));
+  document.addEventListener('keydown', function(e){
+    if(e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    var current = null;
+    modules.forEach(function(m){
+      var rect = m.getBoundingClientRect();
+      if(rect.top <= 120) current = m;
+    });
+
+    if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      var idx = current ? modules.indexOf(current) : -1;
+      var next = modules[idx + 1];
+      if(next){ next.scrollIntoView({behavior:'smooth',block:'start'}); }
+    }
+    if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      var idx = current ? modules.indexOf(current) : -1;
+      var prev = modules[idx - 1];
+      if(prev){ prev.scrollIntoView({behavior:'smooth',block:'start'}); }
+    }
+    if(e.key === 'Home'){ e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}); }
+    if(e.key === 'End'){ e.preventDefault(); modules[modules.length-1].scrollIntoView({behavior:'smooth'}); }
+  });
+}
+
+/* ============================================================
+   BACK TO TOP
+   ============================================================ */
+function initBackToTop(){
+  var btn = document.getElementById('btn-top');
+  window.addEventListener('scroll', function(){
+    if(window.scrollY > 400){ btn.classList.add('visible'); }
+    else { btn.classList.remove('visible'); }
+  });
+}
+
+/* ============================================================
+   IMAGE LIGHTBOX
+   ============================================================ */
+function initLightbox(){
+  var images = document.querySelectorAll('.rb-img-grid img, .rb-img-grid .rb-placeholder-img');
+  images.forEach(function(img){
+    img.addEventListener('click', function(e){
+      e.stopPropagation();
+      var lb = document.getElementById('lightbox');
+      var lbImg = document.getElementById('lightbox-img');
+      if(img.src && !img.src.endsWith('#')){
+        lbImg.src = img.src;
+      }
+      lb.classList.add('open');
+    });
+  });
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    closeLightbox();
+    if(document.getElementById('toc').classList.contains('open')){
+      document.getElementById('toc').classList.remove('open');
+    }
+  }
+});
+
+/* ============================================================
+   MERMAID
+   ============================================================ */
+function initMermaid(){
+  if(typeof mermaid !== 'undefined'){
+    mermaid.initialize({ startOnLoad:true, theme:'neutral' });
+  }
+}
+
+/* ============================================================
+   EDIT MODE
+   ============================================================ */
+function toggleEditMode(){
+  var btn = document.getElementById('btn-edit');
+  var content = document.getElementById('content');
+  var isEditing = content.getAttribute('contenteditable') === 'true';
+
+  if(isEditing){
+    // Save
+    cleanupGarbage();
+    content.setAttribute('contenteditable', 'false');
+    btn.textContent = '✎ 编辑';
+    btn.classList.remove('active');
+    // Protect structural elements
+    protectStructural();
+  } else {
+    // Edit
+    content.setAttribute('contenteditable', 'true');
+    btn.textContent = '✓ 保存';
+    btn.classList.add('active');
+  }
+}
+
+function cleanupGarbage(){
+  // Remove empty style attributes left by contentEditable
+  document.querySelectorAll('[style]').forEach(function(el){
+    var s = el.getAttribute('style').trim();
+    if(!s){ el.removeAttribute('style'); }
+  });
+  // Remove orphan spans
+  document.querySelectorAll('span').forEach(function(span){
+    if(!span.textContent.trim() && !span.innerHTML.trim()){
+      span.parentNode.removeChild(span);
+    }
+  });
+}
+
+function protectStructural(){
+  // Ensure grid/flex containers stay intact after editing
+  // (handled by CSS [contenteditable=true] rules)
+}
+</script>
+
+</body>
+</html>
