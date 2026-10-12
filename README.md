@@ -1,248 +1,86 @@
-# architectural-research v2.0
+# architectural-research
 
-面向建筑学学生、建筑师及设计团队的 **建筑前期研究助手**（Claude Code Skill）。
-输入任务书，输出一份结构化 HTML 建筑研究册——从"信息理解"到"设计策略"的完整推导链。
+面向建筑学学生、建筑师及设计团队的建筑前期研究 skill。围绕任务书、场地资料和已有案例，建立“证据—问题—设计机会—空间动作”的研究关系。
 
-> **极简。编辑感。建筑学。**
+支持完整前期调研、专题研究、案例库建设和已有研究补充。按用户目标确定范围；主文档形式由用户选择，HTML演示按需另行制作。
 
----
+## 开始使用
 
-## 快速开始
+技能包位于[`architectural-research/`](architectural-research/)，执行入口是[`SKILL.md`](architectural-research/SKILL.md)。将整个技能目录放入所用工具支持的技能目录，再提供研究要求、任务书及已有资料。
 
-1. 在 Claude Code 中安装此 Skill
-2. 提供设计任务书（`.docx` / `.pdf`），例如：`"E:\建筑\毕设\20251121海上度假酒店设计任务书.docx"`
-3. Skill 自动生成单文件 HTML 研究册，浏览器直接打开，Ctrl+P 导出 A4 PDF
+示例请求：
 
-## 核心流程
+- “这是课程设计任务书，研究两个候选场地的周边条件与痛点，输出Markdown。”
+- “参考已有案例找类似社区更新项目；先给候选信息，我再决定是否入库。”
+- “详细研究这个菜场案例，并加入现有案例库。”
+- “场地位置更正了，请修改受影响的结论、来源和设计方向。”
+- “我筛选了案例库，结合最新调研完善保留案例的关联。”
 
-```
-设计任务书 (.docx / .pdf)
-        ↓
-  研究分析代理（AI）
-        ↓
-  结构化 HTML 研究册
-        ↓
-  5–8 条设计策略
-```
+新研究先确认课程设计、实际项目或竞赛用途。已明确的用途、范围和格式沿用，不重复初始化。
 
-不是资料整理，而是**设计推导引擎**。每个章节回答一个推动设计向前的问题。
+## 工作范围
 
-## 报告结构（9 模块）
+| 范围 | 主要成果 |
+| --- | --- |
+| 完整前期调研 | 与任务书匹配的研究、问题、备选方向、空间策略及验证计划 |
+| 专题研究 | 围绕指定场地、交通、人群、文化或环境问题的证据与空间启示 |
+| 案例库 | 有来源、匹配依据、空间动作和迁移限制的单案、索引及比较 |
+| 研究补充 | 在原结构中增量修改，修正受影响结论并同步相关链接 |
 
-| # | 模块 | 核心内容 |
-|---|------|---------|
-| 01 | 项目概况 | 核心指标大字报、硬性约束清单、信息状态声明（已识别 / 推断 / 待补充） |
-| 02 | 背景分析 | 区域语境、建筑类型背景、项目定位逻辑 |
-| 03 | 场地与环境 | 气候 KPI → 设计策略推导、自然灾害风险评估 |
-| 04 | 人群与文化 | 四类用户画像卡片、地域文化 → 空间转译链 |
-| 05 | 设计挑战 | 5 个核心矛盾，每张卡片带问题标签（可点击跳转至 M06 对应机会） |
-| 06 | 设计机会 | Challenge → Opportunity 链，带锚点 ID 供 M05 跳转 |
-| 07 | 策略探索 | 6 条策略 × 8 要素（设计问题 → 依据 → 概念 → 空间动作 → 参考案例） |
-| 08 | 案例对标 | 6 个经验证案例，含可点击 URL |
-| 09 | 结论与建议 | 核心发现、风险评估、下一步行动清单 |
+完整研究可使用九模块组织；专题、单案例和局部修改不强制套用整套模板或固定案例数量。
 
-## 视觉系统
+## 更新后的研究方法
 
-**黑白 Editorial** — 纯黑白色调，无装饰色块，无渐变。
+- **先核准对象：** 地图地标、街巷及邻接关系优先于相似简称；定位与正式红线、产权及当前用途分开。
+- **更正传播到结论：** 错误前提影响资源、人群、问题、方向和路线时，修订相应内容，保留有效研究。
+- **维护真实案例清单：** 用户筛选后盘点当前文件，重算数量、修订链接；不擅自恢复移除项目。
+- **候选与入库分开：** 初筛不加入正式库；用户选案后完成详案和导航同步，其余候选继续待选。
+- **说明实际深读程度：** 区分文字机制、已查看图像、具尺寸平剖面比较及使用评估；图纸不可读时标缺口，不编尺寸或反复同路重试。
+- **转成具体空间比较：** 本地问题、案例动作、迁移条件、比较图纸和改变选择的证据相互对应，兼顾日常、后勤与维护。
+- **区分历史与当前：** 计划不等于实施；分期完成不等于整体完成；平台路线与个人行程不等于当前实测客流。
 
-```css
-:root {
-  --color-text: #111;
-  --color-bg: #fff;
-  --color-border: #e5e5e5;
-  --color-card: #f9f9f9;
-}
-```
+## 证据与输出
 
-- 固定左侧目录栏（180px），IntersectionObserver 追踪当前阅读位置
-- 圆角系统（6px / 10px / 16px）
-- 中文字体排版：行高 1.8、无 letter-spacing、不使用 ch 单位
-- 虚线分隔、卡片组件库
-- 窄屏适配：≤860px 目录折叠为汉堡菜单
-- A4 打印样式（每模块前分页）
-- **不在 HTML 中展示 Mermaid 推导图或 AI 推理过程**——只呈现建筑研究结果
+事实、推断与待核实信息分别表达。来源记录主体、日期、定位、可读程度及适用范围。设计目标不当成已验证效果，同一稿件转载不当独立证据。
 
-## 主要功能
+主文档可选择Obsidian／Markdown、DOCX或有可用连接的飞书文档。Markdown沿用用户组织习惯，不为每个案例建立子文件夹。HTML是可选演示，使用黑白编辑式布局，不是默认交付。
 
-- **单文件 HTML** — 浏览器直接打开，无需服务器
-- **Ctrl+P 导出 PDF** — A4 优化打印样式表
-- **挑战 → 机会跳转链接** — 点击挑战卡片底部链接直接跳转到对应设计机会
-- **案例 URL 验证** — 仅引用 ArchDaily / Dezeen / Architizer / 谷德 / ArchiPosition 五个站点
-- **可替换图片** — `<img>` 标签 + SVG 占位符，修改 `src` 即可替换
-- **键盘导航** — ↑↓ Home End
-- **双语搜索** — 每个模块中英文双源搜索
+图像、正文、排版和外部写入依赖实际工具能力。模板中的图像、数字和项目名是占位，不作为研究成果。
 
-## 案例搜索优先级
+## 目录与按需读取
 
-进行建筑案例搜索时，**优先搜索以下五个站点**：
+| 位置 | 职责 |
+| --- | --- |
+| [SKILL.md](architectural-research/SKILL.md) | 入口、范围、流程与按需路由 |
+| [维护地图](architectural-research/README.md) | 规则维护位置 |
+| [research-maintenance.md](architectural-research/references/research-maintenance.md) | 定位纠正、筛选、入库及跨笔记同步 |
+| [precedent-matching.md](architectural-research/references/precedent-matching.md) | 案例筛选、迁移及深读程度 |
+| [evidence-quality.md](architectural-research/references/evidence-quality.md) | 来源、口径、历史与平台信息 |
+| `references/`其他文件 | 项目用途、研究方法、设计方向、报告组织及对应格式指南 |
+| [check_library.py](architectural-research/scripts/check_library.py) | 只读案例库机械检查 |
+| [evals.json](architectural-research/evals/evals.json) | 十个行为场景输入 |
+| [HTML骨架](architectural-research/assets/research-book-template.html) | 可选演示模板 |
 
-| 优先级 | 站点 | 定位 |
-|--------|------|------|
-| 1 | ArchDaily | 全球最大建筑数据库 |
-| 2 | Dezeen | 精选高质量项目 + 设计策略访谈 |
-| 3 | Architizer | 获奖项目，可筛选类型与气候区 |
-| 4 | 谷德设计网 | 中文最佳，亚洲项目深度覆盖 |
-| 5 | ArchiPosition | 中国青年建筑师 + 新兴实践 |
+参考文件按当前任务加载，不要求一次读取全部资料。
 
-URL 必须来自上述五站之一或事务所官方页面。禁止引用聚合站（Pinterest、Reddit、Wikipedia）。
+## 只读案例库检查
 
-## 文件结构
+工具使用Python标准库，无额外依赖：
 
-```
-architectural-research/
-├── SKILL.md                            # Skill 核心定义 & HTML 渲染规则（11 节）
-├── README.md                           # 本文件
-├── assets/
-│   └── research-book-template.html     # HTML 骨架 & 完整组件库
-├── references/
-│   ├── html-output-guide.md            # 视觉与技术规范
-│   ├── report_template.md              # .docx 格式规范（保留）
-│   └── climate_data.md                 # 内置气候参考数据库
-└── evals/
-    └── evals.json                      # 评估用例
+```text
+python architectural-research/scripts/check_library.py --library "案例目录" --project-root "项目目录"
 ```
 
-## 示例输出
+检查可识别数量、已有编号重复和基本本地链接。默认排除四份已知导航文档与显式未入库候选；其他结构可用`--exclude 文件名`补充排除项。
 
-测试案例：**仙本那海上度假酒店**（马来西亚沙巴州仙本那东侧岛礁）
+工具不改文档、不访问外网，不验证来源内容、图纸质量或所有Markdown插件语法。默认分类需先匹配目标库。
 
-- 100 间模块化客房，≤3 层
-- 对标 GB/T 51350-2019 近零能耗建筑标准
-- 参照马来巴瑶族高脚屋文化与珊瑚石肌理
-- 建于海面之上，不与陆地接壤
+本轮已执行六组工具回归、一个实际案例库检查及技能元信息与参考链接检查。`evals/evals.json`是后续语义评测输入，尚未声称全部由独立agent执行。
 
-## 环境依赖
+## English overview
 
-- Claude Code（Skill 支持）
-- Python：`python-docx`（提取 .docx 任务书）、`markitdown`（提取 .pdf）
-- 网络：案例搜索、气候数据 API
+A skill for architectural pre-design research, focused site studies, precedent libraries and ongoing research updates. It grounds design questions in briefs, site evidence and readable references, separating facts, interpretations and unresolved conditions.
 
-## 设计方法论
+Load only the references relevant to the request. Delivery follows the user's chosen Markdown, Word or connected document format; HTML is optional.
 
-基于建筑设计推导链：项目理解 → 背景分析 → 场地研究 → 人群文化 → 功能推演 → 问题提炼 → 设计机会 → 策略探索 → 案例对标 → 结论。
-
-视觉系统受瑞士 Editorial 设计传统启发，为建筑研究报告场景适配。
-
----
-
-# architectural-research v2.0
-
-A Claude Code skill for architectural pre-design research. Takes a design brief, outputs a structured HTML research book — tracing the full design derivation chain from understanding to strategy.
-
-> **Minimal, Editorial, Architectural.**
-
-## Quick Start
-
-1. Install the skill in Claude Code
-2. Provide a design brief (`.docx` / `.pdf`), e.g.: `"E:\建筑\毕设\20251121海上度假酒店设计任务书.docx"`
-3. The skill auto-generates a single-file HTML research book — open in any browser, Ctrl+P to A4 PDF
-
-## Core Workflow
-
-```
-Design Brief (.docx / .pdf)
-        ↓
-  Research Analysis Agent (AI)
-        ↓
-  Structured HTML Research Book
-        ↓
-  5–8 Design Strategies
-```
-
-Not a data dump — a **design derivation engine**. Every section answers a question that pushes the design forward.
-
-## Report Structure (9 Modules)
-
-| # | Module | Content |
-|---|--------|---------|
-| 01 | Project Overview | KPI hero row, hard constraints table, info status cards (known / inferred / missing) |
-| 02 | Context Analysis | Regional context, building type history, project positioning rationale |
-| 03 | Site & Environment | Climate KPIs → design strategy cards, natural disaster risk assessment table |
-| 04 | User & Culture | 4 persona cards, vernacular culture → spatial translation chains |
-| 05 | Design Challenges | 5 core contradictions with problem tags (click to jump to M06 opportunities) |
-| 06 | Design Opportunities | Challenge → Opportunity chains with anchor IDs for M05 cross-navigation |
-| 07 | Strategy Exploration | 6 strategies × 8 elements (Design Question → Evidence → Concept → Spatial Operation → Reference Cases) |
-| 08 | Reference Cases | 6 verified precedent cases with clickable URLs |
-| 09 | Conclusion | Key findings, risk assessment, next-step action plan |
-
-## Design System
-
-**Black & white editorial** — pure black-on-white, no accent colors, no gradients.
-
-```css
-:root {
-  --color-text: #111;
-  --color-bg: #fff;
-  --color-border: #e5e5e5;
-  --color-card: #f9f9f9;
-}
-```
-
-- Fixed left sidebar TOC (180px) with IntersectionObserver active tracking
-- Rounded corner system (`6px` / `10px` / `16px`)
-- CJK typography: `line-height: 1.8`, no `letter-spacing`, no `ch` units
-- Dashed dividers, card-based component library
-- Responsive: sidebar collapses to hamburger at ≤860px
-- A4 print stylesheet with page breaks before each module
-- **No Mermaid diagrams or AI reasoning displayed** — architectural results only
-
-## Key Features
-
-- **Single-file HTML** — opens in any browser, no server needed
-- **Ctrl+P to PDF** — A4-optimized print stylesheet
-- **Challenge → Opportunity jump links** — click card links to navigate between M05 and M06
-- **Verified case URLs** — ArchDaily / Dezeen / Architizer / 谷德 / ArchiPosition only
-- **Replaceable images** — `<img>` tags with SVG placeholders, edit `src` to replace
-- **Keyboard navigation** — ↑↓ Home End
-- **Bilingual search** — Chinese + English sources for every module
-
-## Case Search Priority
-
-When searching for architectural precedents, **search these five sites first**:
-
-| Priority | Site | Strengths |
-|----------|------|-----------|
-| 1 | ArchDaily | Largest global architecture database |
-| 2 | Dezeen | Curated projects, design strategy interviews |
-| 3 | Architizer | Award-winning projects, filter by typology/climate |
-| 4 | 谷德设计网 | Best Chinese-language source, Asian projects in depth |
-| 5 | ArchiPosition | Emerging Chinese architects & practices |
-
-URLs must come from one of these five sites or an official firm page. Never cite aggregator sites (Pinterest, Reddit, Wikipedia).
-
-## File Structure
-
-```
-architectural-research/
-├── SKILL.md                            # Core skill definition & 11-section HTML rendering spec
-├── README.md                           # This file
-├── assets/
-│   └── research-book-template.html     # HTML skeleton with full component library
-├── references/
-│   ├── html-output-guide.md            # Visual & technical specification
-│   ├── report_template.md              # .docx formatting spec (legacy, retained)
-│   └── climate_data.md                 # Built-in climate reference database
-└── evals/
-    └── evals.json                      # Evaluation cases
-```
-
-## Example Output
-
-Test case: **Semporna Maritime Resort Hotel** (East reef, Semporna, Sabah, Malaysia)
-
-- 100 modular guest rooms, ≤3 floors
-- Near-zero energy target (GB/T 51350-2019)
-- Bajau vernacular culture reference (stilt houses, coral stone texture)
-- Built on sea surface, not connected to land
-
-## Requirements
-
-- Claude Code with skill support
-- Python: `python-docx` (for .docx extraction), `markitdown` (for .pdf)
-- Internet access for web search (case studies, climate data)
-
-## Credits
-
-Built on the architectural design derivation chain: Project Understanding → Context → Site → User & Culture → Challenges → Opportunities → Strategy Exploration → Reference Cases → Conclusion.
-
-Design system inspired by Swiss editorial traditions, adapted for the architectural research book format.
+Recent improvements cover site identification, correction propagation, current library inventories, candidate-to-library transitions, drawing-readability boundaries and concrete design transfer. The included read-only Python checker validates basic counts, existing IDs and local links; it does not validate research quality or operating outcomes.

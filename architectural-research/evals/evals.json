@@ -4,15 +4,24 @@
     {
       "id": 0,
       "prompt": "帮我做一下这个项目的前期调研，任务书在 test.docx 里，是一个二线城市的住宅项目，容积率2.5，用地大概3公顷。",
-      "expected_output": "一份结构化的 .docx 建筑前期调研报告，包含项目概况、场地区位分析、气候环境分析、法规体量推演、人文需求、案例对标及综合结论。",
+      "expected_output": "先确认项目类型及尚未指定的主文档形式；任务书缺失时用用户参数进行带条件的初步研究，不假定DOCX或规划已核验。",
       "files": [],
       "assertions": [
-        {"name": "report-has-all-6-sections", "description": "报告包含项目概况、场地区位、气候环境、法规体量、人文需求、案例对标、综合结论", "type": "structural"},
-        {"name": "far-calculation-correct", "description": "容积率计算：3ha × 2.5 = 75,000 m² GFA", "type": "quantitative"},
-        {"name": "output-is-docx", "description": "输出文件为 .docx 格式", "type": "structural"},
-        {"name": "case-studies-with-source-links", "description": "至少3个案例含来源链接URL", "type": "qualitative"},
-        {"name": "mermaid-circulation-diagram", "description": "包含 Mermaid 交通流线分析图", "type": "structural"},
-        {"name": "handles-missing-brief-gracefully", "description": "任务书文件不存在时优雅降级，用已有参数继续分析", "type": "robustness"}
+        {
+          "name": "scope-and-format",
+          "description": "确认新项目用途，输出形式未定时提供选择；不强制DOCX、固定章节数或Mermaid",
+          "type": "qualitative"
+        },
+        {
+          "name": "far-conditional",
+          "description": "3ha×2.5为75000㎡理论计容上限，输入来自用户、规划适用性待核，不等于总建筑面积",
+          "type": "quantitative"
+        },
+        {
+          "name": "missing-brief",
+          "description": "文件缺失明确说明，继续不依赖缺失原文的研究；不声称已经读取任务书",
+          "type": "robustness"
+        }
       ]
     },
     {
@@ -21,12 +30,21 @@
       "expected_output": "一份聚焦气候应对和地域文脉的建筑前期调研报告，包含杭州余杭区区位分析、气候数据、地域建筑风貌研究及图书馆案例对标。",
       "files": [],
       "assertions": [
-        {"name": "climate-data-hangzhou-specific", "description": "气候分析包含杭州/余杭具体温湿度、降水、风向数据", "type": "quantitative"},
-        {"name": "vernacular-architecture-discussed", "description": "讨论了江南/水乡地域建筑类型学（院落、天井等空间图式）", "type": "qualitative"},
-        {"name": "library-precedents-3-plus", "description": "包含3个以上图书馆案例对标", "type": "quantitative"},
-        {"name": "site-advantages-analyzed", "description": "明确分析了地铁站和湿地公园作为场地优势", "type": "qualitative"},
-        {"name": "wind-rose-included", "description": "包含风玫瑰图或风向分析", "type": "structural"},
-        {"name": "report-focuses-on-climate-and-context", "description": "报告重点突出气候应对和地域文脉，而非平均用力", "type": "qualitative"}
+        {
+          "name": "verified-climate",
+          "description": "气象数字有站点、期段、单位和来源，缺失时保留定性，不强制风玫瑰",
+          "type": "qualitative"
+        },
+        {
+          "name": "local-context",
+          "description": "结合已核位置与文脉提出可比较空间方法，不泛化所有江南居民需求",
+          "type": "qualitative"
+        },
+        {
+          "name": "focused-scope",
+          "description": "按请求组织气候与文脉；案例数量以有效问题覆盖决定，不强制三案",
+          "type": "qualitative"
+        }
       ]
     },
     {
@@ -35,11 +53,107 @@
       "expected_output": "一份精简的前期分析报告，重点放在周边交通流线分析和工业遗存改造案例对标，模块可裁剪。",
       "files": [],
       "assertions": [
-        {"name": "modular-lightweight-execution", "description": "模块选择合理：只重点展开交通分析和案例对标，其余模块保持轻量", "type": "structural"},
-        {"name": "traffic-circulation-analysis", "description": "包含交通流线分析（Mermaid图或文字描述）", "type": "structural"},
-        {"name": "industrial-renovation-precedents-3-plus", "description": "包含3个以上工业遗存改造案例（如798、PSA、红坊等）", "type": "quantitative"},
-        {"name": "report-concise-not-overblown", "description": "报告精简聚焦，未生成全套重型报告", "type": "qualitative"},
-        {"name": "site-size-acknowledged", "description": "正确理解5000m²小规模地块的调研需求深度", "type": "robustness"}
+        {
+          "name": "focused-traffic-and-cases",
+          "description": "只开展交通及类似改造案例的有限研究，不扩成完整报告",
+          "type": "qualitative"
+        },
+        {
+          "name": "scale-and-transfer",
+          "description": "5000㎡先保留面积口径，案例按空间动作及可迁移尺度筛选，不强制案例数或图形工具",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "场地简称像某社区，用户图显示另一组街巷和城门，请研究位置与周边。",
+      "expected_output": "先用地标和邻接核准研究对象；行政边界另核，不依据简称套社区人口或学校。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "continuity-3",
+          "description": "先用地标和邻接核准研究对象；行政边界另核，不依据简称套社区人口或学校。",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "更正位置：场地在另一城门附近。请修改已有报告，格式仍为Markdown。",
+      "expected_output": "撤回受影响资源、人群、问题、方向及路线，同步来源和总览；保留有效内容及用户批注，不重问格式。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "continuity-4",
+          "description": "撤回受影响资源、人群、问题、方向及路线，同步来源和总览；保留有效内容及用户批注，不重问格式。",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "我筛选了案例库，旧索引17案，当前目录8篇案例卡。结合最新调研完善关联。",
+      "expected_output": "以真实文件清单重算并修链接，不恢复移除案例；关联本地问题和可检验动作，提交前再盘点。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "continuity-5",
+          "description": "以真实文件清单重算并修链接，不恢复移除案例；关联本地问题和可检验动作，提交前再盘点。",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "再找合适案例，先给初步信息，我再决定是否加入。",
+      "expected_output": "初筛候选，不生成正式卡或计入数量；说明来源、资料可读性、匹配与限制。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "continuity-6",
+          "description": "初筛候选，不生成正式卡或计入数量；说明来源、资料可读性、匹配与限制。",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "把刚才候选中的市场案例详细研究并放进案例库。",
+      "expected_output": "选案授权已足够；深读并同步卡、矩阵、来源和候选转正式状态；不自动加入其余候选。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "continuity-7",
+          "description": "选案授权已足够；深读并同步卡、矩阵、来源和候选转正式状态；不自动加入其余候选。",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "请深入研究此案例；正文可读，但原图服务器连续失败。",
+      "expected_output": "切换可用来源并交付实际完成的研究；分清文字机制与未完成图纸分析，不编尺寸或反复同路重试。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "continuity-8",
+          "description": "切换可用来源并交付实际完成的研究；分清文字机制与未完成图纸分析，不编尺寸或反复同路重试。",
+          "type": "qualitative"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "查街区搬迁开始时间和小红书走读；只有旧计划、分期报道及其他网站路线可读。",
+      "expected_output": "计划与实施、上传与事件日期、不同分期分别记；区分平台原帖和替代来源，不编热度或连续沿革。",
+      "files": [],
+      "assertions": [
+        {
+          "name": "continuity-9",
+          "description": "计划与实施、上传与事件日期、不同分期分别记；区分平台原帖和替代来源，不编热度或连续沿革。",
+          "type": "qualitative"
+        }
       ]
     }
   ]

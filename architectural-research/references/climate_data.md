@@ -1,8 +1,9 @@
 # Climate Reference Data
 
-Use this file as fallback when the Open-Meteo API is unreachable.
-Data is from China Meteorological Administration (CMA) long-term averages
-and published building climate zoning references.
+证据状态：本表为历史参考线索，尚无逐项可追溯的出处、站点、统计期和计算方法。
+旧版本所称 CMA 多年平均的出处尚未核验，不能据此视为官方实测数据。
+保留数值用于检索比对；报告中需要精确值时按 evidence-quality.md 另行核验。
+城市气候区与 HDD/CDD 同样需核对定义、标准版本和适用性；不直接作为工程设计参数。
 
 ## Building Climate Zones (China)
 
@@ -93,12 +94,16 @@ and published building climate zoning references.
 
 ## Usage When API Fails
 
-1. Look up the project city in the table above
-2. If found: use the row data directly; cite as "基于中国气象局多年平均数据（1991-2020）" or equivalent
-3. If not found: use the closest city with similar latitude and climate zone; clearly note "气候数据基于[参考城市]多年平均值推断，建议人工核实"
-4. For the wind rose: if the wind directions are listed above, generate a simple SVG wind rose from the given directions; if not, describe the wind pattern in text only
+1. 表中数值仅作待核实线索，不引用为 CMA 1991–2020 官方统计。
+2. 查原始气象资料和元数据；无法取得时保留待核实，转为有边界的定性分析。
+3. 邻城代理注明地点、差异及原始数据核验状态，不视为当地实测。
+4. 表内季节风向只能绘制明确标为示意的箭头；无频率数据不生成定量风玫瑰。
 
 ## Climate Zone Design Strategy Summary
+
+下表是经验方向，含待核实角度示例；具体朝向需结合当地日照、风、地块和标准验证，不作为普适最优值。
+
+下表是经验方向，含待核实角度示例；具体朝向需结合当地日照、风、地块和标准验证，不作为普适最优值。
 
 | Zone | Key Challenge | Primary Passive Strategy | Orientation |
 |------|--------------|-------------------------|-------------|

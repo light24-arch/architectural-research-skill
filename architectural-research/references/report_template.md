@@ -1,5 +1,8 @@
 # Report Template Reference
 
+用户选择 DOCX 主文档时加载。先生成、检验并交付 DOCX，再按 SKILL.md 询问 HTML 演示需求。
+
+规则来源：任务范围遵循 [SKILL.md](../SKILL.md)；章节、数量和策略结构遵循 [report-structure.md](report-structure.md)；证据遵循 [evidence-quality.md](evidence-quality.md)。排版不改变研究范围。
 Use this reference when generating the final .docx report via python-docx. The goal is a professional, consistent document suitable for architectural practice.
 
 ## Page Setup
@@ -28,7 +31,7 @@ Orientation: portrait (landscape only for extra-wide tables or diagrams)
 ## Heading Hierarchy
 
 ```
-Heading 1: # 0. / 1. / 2. ...  followed by Chinese title
+Heading 1: # 01–09 + report-structure.md 的章节名（仅新完整报告）；其他模式沿用任务结构
 Heading 2: ## 1.1 / 2.3 ...  subsection
 Heading 3: ### unnumbered, for detail topics within subsections
 ```
@@ -76,7 +79,7 @@ table_border_width = Pt(0.5)
 - Embed inline after the paragraph that first references them
 - Caption below image, format: `图 X: <description>` in 9pt, #666666
 - Maximum width: 15 cm (to fit within margins)
-- SVGs: embed directly (python-docx supports EMF/WMF; convert SVG to PNG for embedding)
+- SVGs: convert to PNG before embedding with python-docx
 - Mermaid diagrams: render to PNG/SVG via mermaid-cli or an online service, then embed
 - Resolution: 150 dpi minimum for raster images
 
@@ -99,24 +102,10 @@ Indent: 0.63 cm (Word default)
 
 ## Data Reliability Conventions
 
-Use **professional footnotes** at the bottom of each table or end of each section, rather than
-inline warning symbols. The reader should see the data first, reliability context second.
-
-| Situation | Footnote Format |
-|-----------|-----------------|
-| Inferred/assumed data | `注：以上数据基于同类型项目经验推断，需结合项目实际情况确认。` |
-| Missing data | `注：[具体条目] 待任务书补充后更新。` |
-| Standards-derived values | `注：上表数值依据 [规范名称] 通用要求计算，实际以规划条件为准。` |
-| Qualitative judgment | `注：本段分析基于通用建筑设计知识，建议结合实地调研深化。` |
-| Climate from built-in DB (nearby city) | `注：气候数据基于 [参考城市] 多年平均值推演，需结合实测微调。` |
-| Climate from zone inference | `注：自然环境数据基于同气候区均值推演，需结合实测微调。` |
-| Traffic from city-type inference | `注：交通分析基于城市类型推断，建议结合实地调研核实。` |
-
-**Guidelines:**
-- Place footnotes in 8.5pt, #888888, at the end of the relevant section or directly below the table.
-- Use `注：` prefix consistently — it's professional and unambiguous in Chinese architectural documents.
-- Never interrupt the flow of the report with inline warning symbols.
-- If a section has multiple data reliability levels, use a single consolidated footnote covering all of them.
+使用 evidence-quality.md 的事实、推断、待核实状态。正文/表格内用来源编号与必要状态文字；
+表下注以 8.5pt 补充方法、假设与限制。混合状态逐行/字段标注，不能用章节末的一条通用免责声明替代。
+规范数值注明文件版本、条款、地区与适用对象；来源未核验时不能称法定约束。
+气候库无元数据仅作线索；代理城市标推断；气候区仅作定性推断。
 
 ## Technical Notes for python-docx
 
